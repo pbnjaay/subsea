@@ -23,10 +23,13 @@ const ShiftPage = () => {
   const fetcher = useFetcher();
 
   return (
-    <div className="container mx-auto py-6 space-y-2">
-      <fetcher.Form method="post">
-        <Button type="submit">New Shift</Button>
-      </fetcher.Form>
+    <div className="container flex flex-col mt-8 gap-y-4">
+      <div className="flex justify-between">
+        <h1 className="text-2xl font-semibold">Shifts</h1>
+        <fetcher.Form method="post">
+          <Button type="submit">New Shift</Button>
+        </fetcher.Form>
+      </div>
       {shifts && <DataTable columns={columns} data={shifts} />}
     </div>
   );

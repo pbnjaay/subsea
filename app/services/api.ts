@@ -31,8 +31,7 @@ export const getActivities = async (
   let { data: activities, error } = await supabase
     .from('activity')
     .select(`*`)
-    .eq('id', shiftId)
-    .single();
+    .eq('shift', shiftId);
 
   return activities;
 };
@@ -45,8 +44,7 @@ export const getWarningPoints = async (
   let { data: warningPoints, error } = await supabase
     .from('warningpoint')
     .select(`*`)
-    .eq('id', shiftId)
-    .single();
+    .eq('shift', shiftId);
 
   return warningPoints;
 };

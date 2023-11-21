@@ -1,4 +1,5 @@
 import { CheckCircledIcon, CrossCircledIcon } from '@radix-ui/react-icons';
+
 import { Form, Link, useFetcher, useOutletContext } from '@remix-run/react';
 import { ColumnDef } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
@@ -68,9 +69,9 @@ export const columns: ColumnDef<Shifts>[] = [
       return (
         <div className="text-justify font-medium">
           {is_basic_done ? (
-            <CheckCircledIcon className="text-green-500" />
+            <CheckCircledIcon className="text-primary" />
           ) : (
-            <CrossCircledIcon className="text-destructive" />
+            <CrossCircledIcon className="text-primary" />
           )}
         </div>
       );
@@ -84,9 +85,9 @@ export const columns: ColumnDef<Shifts>[] = [
       return (
         <div className="text-justify font-medium">
           {is_alarm_checked ? (
-            <CheckCircledIcon className="text-green-500" />
+            <CheckCircledIcon className="text-primary" />
           ) : (
-            <CrossCircledIcon className="text-destructive" />
+            <CrossCircledIcon className="text-primary" />
           )}
         </div>
       );
@@ -100,9 +101,9 @@ export const columns: ColumnDef<Shifts>[] = [
       return (
         <div className="text-justify font-medium">
           {is_room_checked ? (
-            <CheckCircledIcon className="text-green-500" />
+            <CheckCircledIcon className="text-primary" />
           ) : (
-            <CrossCircledIcon className="text-destructive" />
+            <CrossCircledIcon className="text-primary" />
           )}
         </div>
       );
