@@ -44,26 +44,58 @@ export interface Database {
           }
         ]
       }
+      profile: {
+        Row: {
+          created_at: string
+          id: string
+          username: string | null
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          username?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          username?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profile_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       shift: {
         Row: {
           created_at: string
           end_at: string | null
           id: number
+          is_alarm_checked: boolean | null
           is_basic_done: boolean | null
+          is_room_checked: boolean | null
           supervisor: string | null
         }
         Insert: {
           created_at?: string
           end_at?: string | null
           id?: number
+          is_alarm_checked?: boolean | null
           is_basic_done?: boolean | null
+          is_room_checked?: boolean | null
           supervisor?: string | null
         }
         Update: {
           created_at?: string
           end_at?: string | null
           id?: number
+          is_alarm_checked?: boolean | null
           is_basic_done?: boolean | null
+          is_room_checked?: boolean | null
           supervisor?: string | null
         }
         Relationships: [
@@ -79,6 +111,7 @@ export interface Database {
       warningpoint: {
         Row: {
           created_at: string
+          description: string | null
           end_date: string | null
           id: number
           shift: number | null
@@ -88,6 +121,7 @@ export interface Database {
         }
         Insert: {
           created_at?: string
+          description?: string | null
           end_date?: string | null
           id?: number
           shift?: number | null
@@ -97,6 +131,7 @@ export interface Database {
         }
         Update: {
           created_at?: string
+          description?: string | null
           end_date?: string | null
           id?: number
           shift?: number | null

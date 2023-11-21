@@ -1,5 +1,10 @@
 import { cssBundleHref } from '@remix-run/css-bundle';
-import { LoaderFunctionArgs, json, type LinksFunction } from '@remix-run/node';
+import {
+  LoaderFunctionArgs,
+  json,
+  type LinksFunction,
+  redirect,
+} from '@remix-run/node';
 import {
   Links,
   LiveReload,
@@ -12,11 +17,18 @@ import {
 } from '@remix-run/react';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { useEffect, useState } from 'react';
+import clsx from 'clsx';
 
 import { createBrowserClient } from '@supabase/auth-helpers-remix';
 import type { Database } from 'db_types';
 import CreateServerSupabase from 'supabase.server';
 import stylesheet from '~/globals.css';
+import { themeSessionResolver } from './server.session';
+import {
+  PreventFlashOnWrongTheme,
+  ThemeProvider,
+  useTheme,
+} from 'remix-themes';
 
 type TypedSupabaseClient = SupabaseClient<Database>;
 
@@ -41,16 +53,31 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     data: { session },
   } = await supabase.auth.getSession();
 
-  return json({ env, session }, { headers: response.headers });
+  const { getTheme } = await themeSessionResolver(request);
+
+  return json(
+    { env, session, them: getTheme() },
+    { headers: response.headers }
+  );
 };
 
-export default function App() {
-  const { env, session } = useLoaderData<typeof loader>();
+export default function AppWithProviders() {
+  const data = useLoaderData<typeof loader>();
+  return (
+    <ThemeProvider specifiedTheme={data.them} themeAction="/action/set-theme">
+      <App />
+    </ThemeProvider>
+  );
+}
+
+export function App() {
+  const { env, session, them } = useLoaderData<typeof loader>();
   const [supabase] = useState(() =>
     createBrowserClient<Database>(env.SUPERBASE_URL, env.SUPERBASE_KEY)
   );
   const revalidator = useRevalidator();
   const serverAccessToken = session?.access_token;
+  const [theme] = useTheme();
 
   useEffect(() => {
     const {
@@ -65,15 +92,15 @@ export default function App() {
   }, [supabase, serverAccessToken, revalidator]);
 
   return (
-    <html lang="en">
+    <html lang="en" className={clsx(theme)}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
+        <PreventFlashOnWrongTheme ssrTheme={Boolean(them)} />
         <Links />
       </head>
       <body>
-        <header>Header</header>
         <Outlet context={{ supabase }} />
         <ScrollRestoration />
         <Scripts />

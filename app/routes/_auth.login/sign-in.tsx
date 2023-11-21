@@ -1,4 +1,3 @@
-import { ActionFunctionArgs, redirect, json } from '@remix-run/node';
 import { Form } from '@remix-run/react';
 import { Button } from '~/components/ui/button';
 import {
@@ -10,14 +9,6 @@ import {
 } from '~/components/ui/card';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
-import { login } from '~/services/api';
-
-export const action = async ({ request }: ActionFunctionArgs) => {
-  const response = new Response();
-  const error = await login({ request, response });
-  if (!error) return redirect('/', { headers: response.headers });
-  return json(null, { headers: response.headers });
-};
 
 const LoginPage = () => {
   return (
