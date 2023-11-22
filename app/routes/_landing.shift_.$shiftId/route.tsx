@@ -1,7 +1,11 @@
+import { PlusCircledIcon } from '@radix-ui/react-icons';
 import { LoaderFunctionArgs, json } from '@remix-run/node';
 import { Form, useLoaderData } from '@remix-run/react';
 import invariant from 'tiny-invariant';
+import FormActivity from '~/components/form-activity';
+import FormWarning from '~/components/from-warning';
 import { Badge } from '~/components/ui/badge';
+import { Button } from '~/components/ui/button';
 import {
   Card,
   CardContent,
@@ -10,6 +14,14 @@ import {
   CardHeader,
   CardTitle,
 } from '~/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '~/components/ui/dialog';
 import { Switch } from '~/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
 import { getActivities, getShift, getWarningPoints } from '~/services/api';
@@ -36,99 +48,64 @@ const ShiftDetailsPage = () => {
 
   if (!shift) return;
   return (
-    <div className="container mt-8 space-y-3">
-      <h1 className="font-semibold text-2xl">
-        {formateDate(new Date(shift?.created_at))}
-      </h1>
-      <div className="flex md:gap-x-4">
-        <Card className=" w-2/3 py-3">
-          <CardContent>
-            <Tabs defaultValue="activities" className="flex flex-col">
-              <TabsList className="self-start">
-                <TabsTrigger value="activities">Activities</TabsTrigger>
-                <TabsTrigger value="warnings">Warnings</TabsTrigger>
-              </TabsList>
-              <TabsContent value="activities">
-                <h1 className="text-xl font-semibold mb-3">List of activity</h1>
-                {activities?.map((activity) => (
-                  <Card className="mb-4 pt-3">
-                    <CardContent>
-                      <div className="flex flex-col gap-y-1">
-                        <p>{activity.description}</p>
-                        <div className="space-x-2">
-                          <Badge className="capitalize">{activity.type}</Badge>
-                          <Badge className="capitalize">
-                            {activity.system}
-                          </Badge>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </TabsContent>
-              <TabsContent value="warnings">
-                {warningPoints?.length ? (
-                  warningPoints?.map((warning) => (
-                    <div>
-                      {warning.type}
-                      <p>{warning.description}</p>
-                    </div>
-                  ))
-                ) : (
-                  <p>No warnings</p>
-                )}
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
-        <div className="flex flex-col gap-y-4">
-          <Card>
-            <CardContent className="flex items-center gap-x-14 py-2">
-              <div>
-                <h1 className="font-semibold text-lg">Basic check</h1>
-                <p className="text-muted-foreground text-sm">
-                  Mark Basic as done or not
-                </p>
-              </div>
-              <Form method="patch" action="">
-                <button>
-                  <Switch checked={shift.is_basic_done || false} />
-                </button>
-              </Form>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="flex items-center gap-x-14 py-2">
-              <div>
-                <h1 className="font-semibold text-lg">Alarm check</h1>
-                <p className="text-muted-foreground text-sm">
-                  Mark Alarm as checked or not
-                </p>
-              </div>
-              <Form method="patch" action="">
-                <button>
-                  <Switch checked={shift.is_alarm_checked || false} />
-                </button>
-              </Form>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="flex items-center gap-x-14 py-2">
-              <div>
-                <h1 className="font-semibold text-lg">Room check</h1>
-                <p className="text-muted-foreground text-sm">
-                  Mark room visit as done or not
-                </p>
-              </div>
-              <Form method="patch" action="">
-                <button>
-                  <Switch checked={shift.is_room_checked || false} />
-                </button>
-              </Form>
-            </CardContent>
-          </Card>
+    <div className="container pt-8">
+      <div className="flex justify-between">
+        <h1>{formateDate(new Date(shift.created_at))}</h1>
+        <div className="flex gap-x-4">
+          <Dialog>
+            <DialogTrigger>
+              <Button size={'icon'}>
+                <PlusCircledIcon />
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Are you sure absolutely sure?</DialogTitle>
+                <DialogDescription>
+                  This action cannot be undone. This will permanently delete
+                  your account and remove your data from our servers.
+                </DialogDescription>
+              </DialogHeader>
+              <Tabs defaultValue="activity" className="w-[400px]">
+                <TabsList>
+                  <TabsTrigger value="activity">Activity</TabsTrigger>
+                  <TabsTrigger value="warning">Warning</TabsTrigger>
+                </TabsList>
+                <TabsContent value="activity">
+                  <FormActivity />
+                </TabsContent>
+                <TabsContent value="warning">
+                  <FormWarning />
+                </TabsContent>
+              </Tabs>
+            </DialogContent>
+          </Dialog>
+          <Dialog>
+            <DialogTrigger>
+              <Button variant={'outline'}>Tasks</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Are you sure absolutely sure?</DialogTitle>
+                <DialogDescription>
+                  This action cannot be undone. This will permanently delete
+                  your account and remove your data from our servers.
+                </DialogDescription>
+              </DialogHeader>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
+      <Tabs defaultValue="activity" className="w-[400px]">
+        <TabsList>
+          <TabsTrigger value="activity">Activity</TabsTrigger>
+          <TabsTrigger value="warning">Warning</TabsTrigger>
+        </TabsList>
+        <TabsContent value="activity">
+          Make changes to your Activity here.
+        </TabsContent>
+        <TabsContent value="warning">Change your Warning here.</TabsContent>
+      </Tabs>
     </div>
   );
 };
