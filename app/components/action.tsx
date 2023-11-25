@@ -135,8 +135,8 @@ const Action = ({
                   key={i}
                   className={`group flex items-center justify-between p-4 hover:bg-muted rounded-sm cursor-point ${
                     Number(fetcher.formData?.get('id')) === activity.id
-                      ? 'opacity-50'
-                      : 'opacity-100'
+                      ? 'opacity-50 transition-opdacity'
+                      : 'opacity- transition-opdacity'
                   }`}
                 >
                   <div className="flex flex-col space-y-2">
@@ -149,11 +149,9 @@ const Action = ({
                     </div>
                   </div>
                   <div className="group-hover:flex gap-x-2 hidden">
-                    <fetcher.Form method="put">
-                      <Button size={'icon'} variant={'ghost'} type="submit">
-                        <EditIcon className="w-4 h-4" />
-                      </Button>
-                    </fetcher.Form>
+                    <Button size={'icon'} variant={'ghost'} type="submit">
+                      <EditIcon className="w-4 h-4" />
+                    </Button>
                     <fetcher.Form method="delete">
                       <Button
                         size={'icon'}
@@ -181,8 +179,8 @@ const Action = ({
                   key={i}
                   className={`group flex items-center justify-between p-4 hover:bg-muted rounded-sm cursor-pointer ${
                     Number(fetcher.formData?.get('id')) === warning.id
-                      ? 'opacity-50'
-                      : 'opacity-100'
+                      ? 'opacity-50 transition-opdacity'
+                      : 'opacity-100 transition-opdacity'
                   }`}
                 >
                   <div className="flex flex-col space-y-2">
@@ -196,14 +194,9 @@ const Action = ({
                     </div>
                   </div>
                   <div className="group-hover:flex gap-x-2 hidden">
-                    <fetcher.Form
-                      method="delete"
-                      action={`/warning/${warning.id}/update`}
-                    >
-                      <Button size={'icon'} variant={'ghost'} type="submit">
-                        <EditIcon className="w-4 h-4" />
-                      </Button>
-                    </fetcher.Form>
+                    <Button size={'icon'} variant={'ghost'} type="submit">
+                      <EditIcon className="w-4 h-4" />
+                    </Button>
                     <fetcher.Form method="delete">
                       <Button
                         size={'icon'}

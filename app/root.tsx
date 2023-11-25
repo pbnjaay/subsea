@@ -103,7 +103,13 @@ export function App() {
         <Links />
       </head>
       <body>
-        <main className={navigation.state === 'loading' ? 'opacity-50' : ''}>
+        <main
+          className={
+            navigation.state === 'loading'
+              ? 'opacity-50 transition-opacity'
+              : 'opacity-1 transition-opacity'
+          }
+        >
           <Outlet context={{ supabase }} />
         </main>
         <ScrollRestoration />

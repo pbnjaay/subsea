@@ -23,7 +23,13 @@ const ShiftPage = () => {
   const fetcher = useFetcher();
 
   return (
-    <div className="container flex flex-col mt-8 gap-y-4">
+    <div
+      className={`container flex flex-col mt-8 gap-y-4 ${
+        fetcher.state === 'submitting'
+          ? 'opacity-50 transition-opacity'
+          : 'opacity-1 transition-opacity'
+      }`}
+    >
       <div className="flex justify-between">
         <h1 className="text-2xl font-semibold">Shifts</h1>
         <fetcher.Form method="post">
