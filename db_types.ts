@@ -16,6 +16,7 @@ export interface Database {
           id: number
           shift: number | null
           system: Database["public"]["Enums"]["system"]
+          title: string | null
           type: Database["public"]["Enums"]["activity_type"] | null
         }
         Insert: {
@@ -24,6 +25,7 @@ export interface Database {
           id?: number
           shift?: number | null
           system: Database["public"]["Enums"]["system"]
+          title?: string | null
           type?: Database["public"]["Enums"]["activity_type"] | null
         }
         Update: {
@@ -32,6 +34,7 @@ export interface Database {
           id?: number
           shift?: number | null
           system?: Database["public"]["Enums"]["system"]
+          title?: string | null
           type?: Database["public"]["Enums"]["activity_type"] | null
         }
         Relationships: [
@@ -116,7 +119,8 @@ export interface Database {
           id: number
           shift: number | null
           state: Database["public"]["Enums"]["state"] | null
-          systeme: Database["public"]["Enums"]["system"] | null
+          system: Database["public"]["Enums"]["system"] | null
+          title: string | null
           type: Database["public"]["Enums"]["signal_incident"] | null
         }
         Insert: {
@@ -126,7 +130,8 @@ export interface Database {
           id?: number
           shift?: number | null
           state?: Database["public"]["Enums"]["state"] | null
-          systeme?: Database["public"]["Enums"]["system"] | null
+          system?: Database["public"]["Enums"]["system"] | null
+          title?: string | null
           type?: Database["public"]["Enums"]["signal_incident"] | null
         }
         Update: {
@@ -136,7 +141,8 @@ export interface Database {
           id?: number
           shift?: number | null
           state?: Database["public"]["Enums"]["state"] | null
-          systeme?: Database["public"]["Enums"]["system"] | null
+          system?: Database["public"]["Enums"]["system"] | null
+          title?: string | null
           type?: Database["public"]["Enums"]["signal_incident"] | null
         }
         Relationships: [
@@ -157,7 +163,7 @@ export interface Database {
       [_ in never]: never
     }
     Enums: {
-      activity_type: "plainte" | "callID" | "instance" | "divers"
+      activity_type: "claim" | "callID" | "instance" | "other"
       signal_incident: "signalisation" | "incident"
       state: "open" | "in progress" | "closed"
       system: "sat3" | "mainone" | "rafia" | "ace"

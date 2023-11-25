@@ -9,16 +9,22 @@ import {
 } from './ui/select';
 import { Textarea } from './ui/textarea';
 import { Button } from './ui/button';
+import { Label } from './ui/label';
+import { Input } from './ui/input';
 
-const FormWarning = ({ shiftId }: { shiftId: number }) => {
+const EditFormActivity = ({ shiftId }: { shiftId: number }) => {
   return (
     <Form
       className="space-y-4"
       method="post"
-      action={`/shift/${shiftId}/addwarning`}
+      action={`/shift/${shiftId}/addactivity`}
     >
+      <div className="space-y-2">
+        <Label>Title</Label>
+        <Input name="title" type="text" />
+      </div>
       <div className="flex space-x-4">
-        <Select>
+        <Select name="system">
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="System" />
           </SelectTrigger>
@@ -29,30 +35,22 @@ const FormWarning = ({ shiftId }: { shiftId: number }) => {
             <SelectItem value="ace">Ace</SelectItem>
           </SelectContent>
         </Select>
-        <Select>
+        <Select name="type">
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Type" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="signalisation">Signalisation</SelectItem>
-            <SelectItem value="incident">Incident</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="State" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="open">Open</SelectItem>
-            <SelectItem value="in progress">In progress</SelectItem>
-            <SelectItem value="closed">Closed</SelectItem>
+            <SelectItem value="plainte">Plainte</SelectItem>
+            <SelectItem value="callID">Call ID</SelectItem>
+            <SelectItem value="instance">Instance</SelectItem>
+            <SelectItem value="divers">Divers</SelectItem>
           </SelectContent>
         </Select>
       </div>
-      <Textarea />
+      <Textarea name="description" />
       <Button>Submit</Button>
     </Form>
   );
 };
 
-export default FormWarning;
+export default EditFormActivity;

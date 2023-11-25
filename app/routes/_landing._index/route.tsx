@@ -24,7 +24,7 @@ export default function Index() {
 
   return (
     <>
-      <pre>{JSON.stringify(shifts, null, 2)}</pre>
+      <div>This page is under construction</div>
     </>
   );
 }

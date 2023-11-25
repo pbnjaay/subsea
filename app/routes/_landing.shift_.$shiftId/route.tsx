@@ -1,31 +1,16 @@
-import { PlusCircledIcon } from '@radix-ui/react-icons';
 import { LoaderFunctionArgs, json } from '@remix-run/node';
-import { Form, useLoaderData } from '@remix-run/react';
+import { useLoaderData, useNavigate, useNavigation } from '@remix-run/react';
 import invariant from 'tiny-invariant';
-import FormActivity from '~/components/form-activity';
-import FormWarning from '~/components/from-warning';
-import { Badge } from '~/components/ui/badge';
+import Action from '~/components/action';
 import { Button } from '~/components/ui/button';
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '~/components/ui/card';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '~/components/ui/dialog';
-import { Switch } from '~/components/ui/switch';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
-import { getActivities, getShift, getWarningPoints } from '~/services/api';
-import { formatInstant, formateDate } from '~/services/utils';
+  deleteActivity,
+  deleteWarning,
+  getActivities,
+  getShift,
+  getWarningPoints,
+} from '~/services/api';
+import { formateDate } from '~/services/utils';
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   invariant(params.shiftId, 'Missing shiftId param');
@@ -42,70 +27,42 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   );
 };
 
+export const action = async ({ request, params }: LoaderFunctionArgs) => {
+  invariant(params.shiftId, 'Missing contactId param');
+  const response = new Response();
+  const formData = await request.formData();
+  const { _action, id } = Object.fromEntries(formData);
+
+  if (_action === 'deleteActivity') {
+    await deleteActivity(Number(id), { request, response });
+  }
+
+  if (_action === 'deleteWarning') {
+    await deleteWarning(Number(id), { request, response });
+  }
+
+  return json({}, { headers: response.headers });
+};
+
 const ShiftDetailsPage = () => {
   const { shift, activities, warningPoints } = useLoaderData<typeof loader>();
-  console.log(activities);
+  const navigate = useNavigate();
+  const navigation = useNavigation();
 
   if (!shift) return;
   return (
     <div className="container pt-8">
-      <div className="flex justify-between">
-        <h1>{formateDate(new Date(shift.created_at))}</h1>
+      <div className="flex justify-between mb-4">
+        <h1 className="text-2xl font-bold">
+          {formateDate(new Date(shift.created_at))}
+        </h1>
         <div className="flex gap-x-4">
-          <Dialog>
-            <DialogTrigger>
-              <Button size={'icon'}>
-                <PlusCircledIcon />
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Are you sure absolutely sure?</DialogTitle>
-                <DialogDescription>
-                  This action cannot be undone. This will permanently delete
-                  your account and remove your data from our servers.
-                </DialogDescription>
-              </DialogHeader>
-              <Tabs defaultValue="activity" className="w-[400px]">
-                <TabsList>
-                  <TabsTrigger value="activity">Activity</TabsTrigger>
-                  <TabsTrigger value="warning">Warning</TabsTrigger>
-                </TabsList>
-                <TabsContent value="activity">
-                  <FormActivity />
-                </TabsContent>
-                <TabsContent value="warning">
-                  <FormWarning />
-                </TabsContent>
-              </Tabs>
-            </DialogContent>
-          </Dialog>
-          <Dialog>
-            <DialogTrigger>
-              <Button variant={'outline'}>Tasks</Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Are you sure absolutely sure?</DialogTitle>
-                <DialogDescription>
-                  This action cannot be undone. This will permanently delete
-                  your account and remove your data from our servers.
-                </DialogDescription>
-              </DialogHeader>
-            </DialogContent>
-          </Dialog>
+          <Button onClick={() => navigate(`/shift/${shift.id}/addaction`)}>
+            Add Action
+          </Button>
         </div>
       </div>
-      <Tabs defaultValue="activity" className="w-[400px]">
-        <TabsList>
-          <TabsTrigger value="activity">Activity</TabsTrigger>
-          <TabsTrigger value="warning">Warning</TabsTrigger>
-        </TabsList>
-        <TabsContent value="activity">
-          Make changes to your Activity here.
-        </TabsContent>
-        <TabsContent value="warning">Change your Warning here.</TabsContent>
-      </Tabs>
+      <Action activities={activities} warnings={warningPoints} />
     </div>
   );
 };

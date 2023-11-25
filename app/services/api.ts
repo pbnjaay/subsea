@@ -7,7 +7,10 @@ type ApiCall = {
 
 export const getShifts = async ({ request, response }: ApiCall) => {
   const supabase = CreateServersupabase({ request, response });
-  let { data: shift, error } = await supabase.from('shift').select(`*`);
+  let { data: shift, error } = await supabase
+    .from('shift')
+    .select(`*`)
+    .order('created_at', { ascending: false });
 
   return shift;
 };
@@ -31,7 +34,10 @@ export const getActivities = async (
   let { data: activities, error } = await supabase
     .from('activity')
     .select(`*`)
-    .eq('shift', shiftId);
+    .eq('shift', shiftId)
+    .order('created_at', { ascending: false });
+
+  if (error) throw new Error(error.message);
 
   return activities;
 };
@@ -44,16 +50,90 @@ export const getWarningPoints = async (
   let { data: warningPoints, error } = await supabase
     .from('warningpoint')
     .select(`*`)
-    .eq('shift', shiftId);
+    .eq('shift', shiftId)
+    .order('created_at', { ascending: false });
+
+  if (error) throw new Error(error.message);
 
   return warningPoints;
 };
 
 export const postShift = async ({ request, response }: ApiCall) => {
   const supabase = CreateServersupabase({ request, response });
-  const { data: shift } = await supabase.from('shift').insert({}).select();
+  const { data: shift, error } = await supabase
+    .from('shift')
+    .insert({})
+    .select();
+
+  if (error) throw new Error(error.message);
 
   return shift;
+};
+
+export const postActivity = async (
+  shiftId: number,
+  values: any,
+  { request, response }: ApiCall
+) => {
+  const supabase = CreateServersupabase({ request, response });
+
+  const { data: activity, error } = await supabase
+    .from('activity')
+    .insert({
+      ...values,
+      shift: shiftId,
+    })
+    .select();
+
+  if (error) throw new Error(error.message);
+
+  return activity;
+};
+
+export const deleteActivity = async (
+  activityId: number,
+  { request, response }: ApiCall
+) => {
+  const supabase = CreateServersupabase({ request, response });
+  const { error } = await supabase
+    .from('activity')
+    .delete()
+    .eq('id', activityId);
+
+  if (error) throw new Error(error.message);
+};
+
+export const deleteWarning = async (
+  warningId: number,
+  { request, response }: ApiCall
+) => {
+  const supabase = CreateServersupabase({ request, response });
+  const { error } = await supabase
+    .from('warningpoint')
+    .delete()
+    .eq('id', warningId);
+
+  if (error) throw new Error(error.message);
+};
+
+export const postWarning = async (
+  shiftId: number,
+  values: any,
+  { request, response }: ApiCall
+) => {
+  const supabase = CreateServersupabase({ request, response });
+
+  const { data: warning, error } = await supabase
+    .from('warningpoint')
+    .insert({
+      ...values,
+      shift: shiftId,
+    })
+    .select();
+
+  if (error) throw new Error(error.message);
+
+  return warning;
 };
 
 export const getUsername = async (
@@ -74,8 +154,12 @@ export const toogleBasic = async (
   id: number,
   { request, response }: ApiCall
 ) => {
+  const { basic } = Object.fromEntries(await request.formData());
   const supabase = CreateServersupabase({ request, response });
-  await supabase.from('shift').update({ is_basic_done: true }).eq('id', id);
+  await supabase
+    .from('shift')
+    .update({ is_basic_done: String(basic) === 'on' ? true : false })
+    .eq('id', id);
 };
 
 export const endShift = async (id: number, { request, response }: ApiCall) => {
