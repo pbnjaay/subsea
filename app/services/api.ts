@@ -1,3 +1,4 @@
+import { Database } from 'db_types';
 import CreateServersupabase from 'supabase.server';
 
 type ApiCall = {
@@ -114,6 +115,72 @@ export const deleteWarning = async (
     .eq('id', warningId);
 
   if (error) throw new Error(error.message);
+};
+
+export const updateWarning = async (
+  warningId: number,
+  values: any,
+  { request, response }: ApiCall
+) => {
+  const supabase = CreateServersupabase({ request, response });
+  const { data: warning, error } = await supabase
+    .from('warningpoint')
+    .update({ ...values })
+    .eq('id', warningId)
+    .select()
+    .single();
+
+  if (error) throw new Error(error.message);
+  return warning;
+};
+
+export const updateActivity = async (
+  activityId: number,
+  values: any,
+  { request, response }: ApiCall
+) => {
+  const supabase = CreateServersupabase({ request, response });
+  const { data: activity, error } = await supabase
+    .from('activity')
+    .update({ ...values })
+    .eq('id', activityId)
+    .select()
+    .single();
+
+  if (error) throw new Error(error.message);
+  return activity;
+};
+
+export const getWarning = async (
+  warningId: number,
+  { request, response }: ApiCall
+) => {
+  const supabase = CreateServersupabase({ request, response });
+  const { data: warning, error } = await supabase
+    .from('warningpoint')
+    .select('*')
+    .eq('id', warningId)
+    .single();
+
+  if (error) throw new Error(error.message);
+
+  return warning;
+};
+
+export const getActivity = async (
+  activityId: number,
+  { request, response }: ApiCall
+) => {
+  const supabase = CreateServersupabase({ request, response });
+  const { data: activity, error } = await supabase
+    .from('activity')
+    .select('*')
+    .eq('id', activityId)
+    .single();
+
+  if (error) throw new Error(error.message);
+
+  return activity;
 };
 
 export const postWarning = async (

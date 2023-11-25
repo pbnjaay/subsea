@@ -20,6 +20,7 @@ import {
 import { useFetcher } from 'react-router-dom';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
+import { useNavigate } from '@remix-run/react';
 
 interface Activity {
   created_at: string;
@@ -53,6 +54,7 @@ const Action = ({
   warnings: Warning[] | null;
 }) => {
   const fetcher = useFetcher();
+  const navigate = useNavigate();
 
   const getActivityTypeCount = (type: string) => {
     let count = 0;
@@ -149,7 +151,12 @@ const Action = ({
                     </div>
                   </div>
                   <div className="group-hover:flex gap-x-2 hidden">
-                    <Button size={'icon'} variant={'ghost'} type="submit">
+                    <Button
+                      size={'icon'}
+                      variant={'ghost'}
+                      type="submit"
+                      onClick={() => navigate(`editactivity/${activity.id}`)}
+                    >
                       <EditIcon className="w-4 h-4" />
                     </Button>
                     <fetcher.Form method="delete">
@@ -165,7 +172,7 @@ const Action = ({
                       <input
                         type="number"
                         hidden
-                        value={activity.id}
+                        defaultValue={activity.id}
                         name="id"
                       />
                     </fetcher.Form>
@@ -194,7 +201,12 @@ const Action = ({
                     </div>
                   </div>
                   <div className="group-hover:flex gap-x-2 hidden">
-                    <Button size={'icon'} variant={'ghost'} type="submit">
+                    <Button
+                      size={'icon'}
+                      variant={'ghost'}
+                      type="submit"
+                      onClick={() => navigate(`editwarning/${warning.id}`)}
+                    >
                       <EditIcon className="w-4 h-4" />
                     </Button>
                     <fetcher.Form method="delete">
@@ -204,14 +216,11 @@ const Action = ({
                         type="submit"
                         name="_action"
                         value="deleteWarning"
-                        onClick={() => {
-                          warnings.filter((w) => w.id != warning.id);
-                        }}
                       >
                         <input
                           type="number"
                           hidden
-                          value={warning.id}
+                          defaultValue={warning.id}
                           name="id"
                         />
                         <TrashIcon className="w-4 h-4 text-red-600" />
