@@ -6,6 +6,7 @@ import { Button } from '~/components/ui/button';
 import {
   deleteActivity,
   deleteWarning,
+  endShift,
   getActivities,
   getShift,
   getWarningPoints,

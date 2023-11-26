@@ -145,7 +145,7 @@ const EditWarningPage = () => {
                 disabled={navigation.state === 'submitting'}
                 type="submit"
               >
-                {navigation.state === 'submitting' ? 'submitting...' : 'submit'}
+                {navigation.state === 'submitting' ? 'submitting' : 'submit'}
               </Button>
               <Button
                 type="button"

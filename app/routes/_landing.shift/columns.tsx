@@ -6,6 +6,7 @@ import {
   DoorOpenIcon,
   EyeIcon,
   FolderIcon,
+  InfoIcon,
   MoreHorizontal,
   SendIcon,
   SirenIcon,
@@ -77,7 +78,7 @@ export const columns: ColumnDef<Shifts>[] = [
           {is_basic_done ? (
             <CheckCircledIcon className="text-primary" />
           ) : (
-            <CrossCircledIcon className="text-primary" />
+            <CrossCircledIcon className="text-muted-foreground" />
           )}
         </div>
       );
@@ -93,7 +94,7 @@ export const columns: ColumnDef<Shifts>[] = [
           {is_alarm_checked ? (
             <CheckCircledIcon className="text-primary" />
           ) : (
-            <CrossCircledIcon className="text-primary" />
+            <CrossCircledIcon className="text-muted-foreground" />
           )}
         </div>
       );
@@ -109,7 +110,7 @@ export const columns: ColumnDef<Shifts>[] = [
           {is_room_checked ? (
             <CheckCircledIcon className="text-primary" />
           ) : (
-            <CrossCircledIcon className="text-primary" />
+            <CrossCircledIcon className="text-muted-foreground" />
           )}
         </div>
       );
@@ -128,15 +129,16 @@ export const columns: ColumnDef<Shifts>[] = [
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="w-[15rem]">
+          <DropdownMenuContent align="start">
             <DropdownMenuItem className="flex items-center gap-x-2">
-              <EyeIcon className="w-4 h-4" />
-              <Link to={`${shift.id}`}>View shift details</Link>
+              <InfoIcon className="w-3 h-3" />
+              <Link className="w-full" to={`${shift.id}`}>
+                View details
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
               <fetcher.Form
-                action={`/shift/${shift.id}/basic`}
                 method="PATCH"
                 className="flex items-center gap-x-2"
               >
@@ -144,15 +146,22 @@ export const columns: ColumnDef<Shifts>[] = [
                 <input
                   type="text"
                   hidden
-                  name="basic"
+                  name="checked"
                   defaultValue={shift.is_basic_done ? 'true' : 'false'}
                 />
-                <button type="submit">Mark basic</button>
+                <button type="submit" name="_action" value="basic">
+                  Mark basic
+                </button>
+                <input
+                  type="number"
+                  defaultValue={shift.id}
+                  name="shiftId"
+                  hidden
+                />
               </fetcher.Form>
             </DropdownMenuItem>
             <DropdownMenuItem>
               <fetcher.Form
-                action={`/shift/${shift.id}/alarm`}
                 method="PATCH"
                 className="flex items-center gap-x-2"
               >
@@ -160,15 +169,22 @@ export const columns: ColumnDef<Shifts>[] = [
                 <input
                   type="text"
                   hidden
-                  name="alarm"
+                  name="checked"
                   defaultValue={shift.is_alarm_checked ? 'true' : 'false'}
                 />
-                <button type="submit">Checking alarms</button>
+                <button type="submit" name="_action" value="alarm">
+                  Checking alarms
+                </button>
+                <input
+                  type="number"
+                  defaultValue={shift.id}
+                  name="shiftId"
+                  hidden
+                />
               </fetcher.Form>
             </DropdownMenuItem>
             <DropdownMenuItem>
               <fetcher.Form
-                action={`/shift/${shift.id}/room`}
                 method="PATCH"
                 className="flex items-center gap-x-2"
               >
@@ -176,32 +192,52 @@ export const columns: ColumnDef<Shifts>[] = [
                 <input
                   type="text"
                   hidden
-                  name="room"
-                  defaultValue={shift.is_alarm_checked ? 'true' : 'false'}
+                  name="checked"
+                  defaultValue={shift.is_room_checked ? 'true' : 'false'}
                 />
-                <button type="submit">Room tour</button>
+                <button type="submit" name="_action" value="room">
+                  Room tour
+                </button>
+                <input
+                  type="number"
+                  defaultValue={shift.id}
+                  name="shiftId"
+                  hidden
+                />
               </fetcher.Form>
             </DropdownMenuItem>
-            {!shift.end_at && (
-              <DropdownMenuItem>
-                <fetcher.Form
-                  action={`/shift/${shift.id}/end`}
-                  method="PATCH"
-                  className="flex items-center gap-x-2"
-                >
-                  <SendIcon className="w-3 h-3" />
-                  <button type="submit">End shift</button>
-                </fetcher.Form>
-              </DropdownMenuItem>
-            )}
             <DropdownMenuItem>
               <fetcher.Form
-                action={`/shift/${shift.id}/destroy`}
+                method="PATCH"
+                className="flex items-center gap-x-2"
+              >
+                <SendIcon className="w-3 h-3" />
+                <button type="submit" name="_action" value="end">
+                  End shift
+                </button>
+                <input
+                  type="number"
+                  defaultValue={shift.id}
+                  name="shiftId"
+                  hidden
+                />
+              </fetcher.Form>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <fetcher.Form
                 method="PATCH"
                 className="flex items-center gap-x-2"
               >
                 <TrashIcon className="w-3 h-3" />
-                <button type="submit">Delete</button>
+                <button type="submit" name="_action" value="destroy">
+                  Delete
+                </button>
+                <input
+                  type="text"
+                  hidden
+                  name="shiftId"
+                  defaultValue={shift.id}
+                />
               </fetcher.Form>
             </DropdownMenuItem>
           </DropdownMenuContent>

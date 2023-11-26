@@ -248,13 +248,41 @@ export const getUsername = async (
 
 export const toogleBasic = async (
   id: number,
-  basic: boolean,
+  checked: boolean,
   { request, response }: ApiCall
 ) => {
   const supabase = CreateServersupabase({ request, response });
   const { error } = await supabase
     .from('shift')
-    .update({ is_basic_done: !basic })
+    .update({ is_basic_done: !checked })
+    .eq('id', id);
+
+  if (error) throw new Error(error.message);
+};
+
+export const toogleRoom = async (
+  id: number,
+  checked: boolean,
+  { request, response }: ApiCall
+) => {
+  const supabase = CreateServersupabase({ request, response });
+  const { error } = await supabase
+    .from('shift')
+    .update({ is_room_checked: !checked })
+    .eq('id', id);
+
+  if (error) throw new Error(error.message);
+};
+
+export const toogleAlarm = async (
+  id: number,
+  checked: boolean,
+  { request, response }: ApiCall
+) => {
+  const supabase = CreateServersupabase({ request, response });
+  const { error } = await supabase
+    .from('shift')
+    .update({ is_alarm_checked: !checked })
     .eq('id', id);
 
   if (error) throw new Error(error.message);

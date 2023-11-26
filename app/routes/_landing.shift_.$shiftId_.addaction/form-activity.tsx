@@ -69,7 +69,7 @@ const FormActivity = () => {
               value="createActivity"
               name="_action"
             >
-              {navigation.state === 'submitting' ? 'submitting...' : 'submit'}
+              {navigation.state === 'submitting' ? 'submitting' : 'submit'}
             </Button>
             <Button
               type="button"
