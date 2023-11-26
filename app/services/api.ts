@@ -13,6 +13,8 @@ export const getShifts = async ({ request, response }: ApiCall) => {
     .select(`*`)
     .order('created_at', { ascending: false });
 
+  if (error) throw new Error(error.message);
+
   return shift;
 };
 
@@ -23,6 +25,14 @@ export const getShift = async (id: number, { request, response }: ApiCall) => {
     .select(`*`)
     .eq('id', id)
     .single();
+
+  if (!shift)
+    throw new Response('Shift not found', {
+      status: 404,
+      statusText: 'Not found',
+    });
+
+  if (error) throw new Error(error.message);
 
   return shift;
 };
@@ -163,6 +173,11 @@ export const getWarning = async (
     .single();
 
   if (error) throw new Error(error.message);
+  if (!warning)
+    throw new Response('warning not found', {
+      status: 404,
+      statusText: 'Not found',
+    });
 
   return warning;
 };
@@ -179,6 +194,12 @@ export const getActivity = async (
     .single();
 
   if (error) throw new Error(error.message);
+
+  if (!activity)
+    throw new Response('warning not found', {
+      status: 404,
+      statusText: 'Not found',
+    });
 
   return activity;
 };
@@ -214,19 +235,29 @@ export const getUsername = async (
     .eq('id', id)
     .single();
 
+  if (error) throw new Error(error.message);
+
+  if (!profile)
+    throw new Response('Profile not found', {
+      status: 404,
+      statusText: 'Not found',
+    });
+
   return profile;
 };
 
 export const toogleBasic = async (
   id: number,
+  basic: boolean,
   { request, response }: ApiCall
 ) => {
-  const { basic } = Object.fromEntries(await request.formData());
   const supabase = CreateServersupabase({ request, response });
-  await supabase
+  const { error } = await supabase
     .from('shift')
-    .update({ is_basic_done: String(basic) === 'on' ? true : false })
+    .update({ is_basic_done: !basic })
     .eq('id', id);
+
+  if (error) throw new Error(error.message);
 };
 
 export const endShift = async (id: number, { request, response }: ApiCall) => {

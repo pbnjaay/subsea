@@ -138,7 +138,7 @@ const Action = ({
                   className={`group flex items-center justify-between p-4 hover:bg-muted rounded-sm cursor-point ${
                     Number(fetcher.formData?.get('id')) === activity.id
                       ? 'opacity-50 transition-opdacity'
-                      : 'opacity- transition-opdacity'
+                      : 'opacity-100 transition-opdacity'
                   }`}
                 >
                   <div className="flex flex-col space-y-2">

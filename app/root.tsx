@@ -73,7 +73,6 @@ export default function AppWithProviders() {
 
 export function App() {
   const { env, session, them } = useLoaderData<typeof loader>();
-  const navigation = useNavigation();
   const [supabase] = useState(() =>
     createBrowserClient<Database>(env.SUPERBASE_URL, env.SUPERBASE_KEY)
   );
@@ -103,15 +102,7 @@ export function App() {
         <Links />
       </head>
       <body>
-        <main
-          className={
-            navigation.state === 'loading'
-              ? 'opacity-50 transition-opacity'
-              : 'opacity-1 transition-opacity'
-          }
-        >
-          <Outlet context={{ supabase }} />
-        </main>
+        <Outlet context={{ supabase }} />
         <ScrollRestoration />
         <Scripts />
         <LiveReload />

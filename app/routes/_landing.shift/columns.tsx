@@ -1,8 +1,16 @@
 import { CheckCircledIcon, CrossCircledIcon } from '@radix-ui/react-icons';
 
-import { Form, Link, useFetcher, useOutletContext } from '@remix-run/react';
+import { Link, useFetcher } from '@remix-run/react';
 import { ColumnDef } from '@tanstack/react-table';
-import { MoreHorizontal } from 'lucide-react';
+import {
+  DoorOpenIcon,
+  EyeIcon,
+  FolderIcon,
+  MoreHorizontal,
+  SendIcon,
+  SirenIcon,
+  TrashIcon,
+} from 'lucide-react';
 import { Badge } from '~/components/ui/badge';
 
 import { Button } from '~/components/ui/button';
@@ -10,11 +18,9 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
-import { SupabaseOutletContext, links } from '~/root';
 import { formateDate } from '~/services/utils';
 
 export type Shifts = {
@@ -122,26 +128,69 @@ export const columns: ColumnDef<Shifts>[] = [
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuContent align="start" className="w-[15rem]">
+            <DropdownMenuItem className="flex items-center gap-x-2">
+              <EyeIcon className="w-4 h-4" />
+              <Link to={`${shift.id}`}>View shift details</Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>
+              <fetcher.Form
+                action={`/shift/${shift.id}/basic`}
+                method="PATCH"
+                className="flex items-center gap-x-2"
+              >
+                <FolderIcon className="w-3 h-3" />
+                <input
+                  type="text"
+                  hidden
+                  name="basic"
+                  defaultValue={shift.is_basic_done ? 'true' : 'false'}
+                />
+                <button type="submit">Mark basic</button>
+              </fetcher.Form>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <fetcher.Form
+                action={`/shift/${shift.id}/alarm`}
+                method="PATCH"
+                className="flex items-center gap-x-2"
+              >
+                <SirenIcon className="w-3 h-3" />
+                <input
+                  type="text"
+                  hidden
+                  name="alarm"
+                  defaultValue={shift.is_alarm_checked ? 'true' : 'false'}
+                />
+                <button type="submit">Checking alarms</button>
+              </fetcher.Form>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <fetcher.Form
+                action={`/shift/${shift.id}/room`}
+                method="PATCH"
+                className="flex items-center gap-x-2"
+              >
+                <DoorOpenIcon className="w-3 h-3" />
+                <input
+                  type="text"
+                  hidden
+                  name="room"
+                  defaultValue={shift.is_alarm_checked ? 'true' : 'false'}
+                />
+                <button type="submit">Room tour</button>
+              </fetcher.Form>
+            </DropdownMenuItem>
             {!shift.end_at && (
               <DropdownMenuItem>
-                <fetcher.Form action={`/shift/${shift.id}/end`} method="PATCH">
-                  <Button size={'sm'} variant={'ghost'} type="submit">
-                    End shift
-                  </Button>
-                </fetcher.Form>
-              </DropdownMenuItem>
-            )}
-            {!shift.is_basic_done && (
-              <DropdownMenuItem>
                 <fetcher.Form
-                  action={`/shift/${shift.id}/basic`}
+                  action={`/shift/${shift.id}/end`}
                   method="PATCH"
+                  className="flex items-center gap-x-2"
                 >
-                  <Button size={'sm'} variant={'ghost'} type="submit">
-                    Mark basic
-                  </Button>
+                  <SendIcon className="w-3 h-3" />
+                  <button type="submit">End shift</button>
                 </fetcher.Form>
               </DropdownMenuItem>
             )}
@@ -149,15 +198,11 @@ export const columns: ColumnDef<Shifts>[] = [
               <fetcher.Form
                 action={`/shift/${shift.id}/destroy`}
                 method="PATCH"
+                className="flex items-center gap-x-2"
               >
-                <Button size={'sm'} variant={'ghost'} type="submit">
-                  Delete shifts
-                </Button>
+                <TrashIcon className="w-3 h-3" />
+                <button type="submit">Delete</button>
               </fetcher.Form>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <Link to={`${shift.id}`}>View shift details</Link>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

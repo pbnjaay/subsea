@@ -5,6 +5,16 @@ import { toogleBasic } from '~/services/api';
 export const action = async ({ request, params }: ActionFunctionArgs) => {
   invariant(params.shiftId, 'Missing contactId param');
   const response = new Response();
-  await toogleBasic(parseInt(params.shiftId), { request, response });
+  const formData = await request.formData();
+  const { basic } = Object.fromEntries(formData);
+
+  await toogleBasic(
+    parseInt(params.shiftId),
+    basic === 'false' ? false : true,
+    {
+      request,
+      response,
+    }
+  );
   return json({}, { headers: response.headers });
 };
