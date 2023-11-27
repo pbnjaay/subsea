@@ -1,8 +1,9 @@
 import { LoaderFunctionArgs, json } from '@remix-run/node';
-import { Form, useFetcher, useLoaderData } from '@remix-run/react';
+import { useFetcher, useLoaderData } from '@remix-run/react';
 import {
   deleteShift,
   endShift,
+  getActivities,
   getShifts,
   postShift,
   toogleAlarm,
@@ -13,6 +14,9 @@ import { DataTable } from './data-table';
 import { columns } from './columns';
 import { Button } from '~/components/ui/button';
 import { mailer } from '~/entry.server';
+import { render } from '@react-email/render';
+import { formateDate } from '~/services/utils';
+import Email from '~/components/email';
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const response = new Response();
@@ -34,6 +38,10 @@ export const action = async ({ request, params }: LoaderFunctionArgs) => {
 
   if (_action === 'end') {
     await endShift(Number(shiftId), { request, response });
+    const activities = await getActivities(String(shiftId), {
+      request,
+      response,
+    });
 
     const transporter = mailer.createTransport({
       host: 'webmail.orange-sonatel.com',
@@ -49,12 +57,17 @@ export const action = async ({ request, params }: LoaderFunctionArgs) => {
       },
     });
 
+    const emailHtml = render(<Email activities={activities} />);
+    const date = new Date(Date.now());
+
     await transporter.sendMail({
       from: 'supervision.services@orange-sonatel.com', // sender address
-      to: 'papabassirou.ndiaye@orange-sonatel.com', // list of receivers
-      subject: 'Hello ✔', // Subject line
-      text: 'Hello world?', // plain text body
-      html: '<b>Hello world?</b>', // html body
+      to: [
+        'papabassirou.ndiaye@orange-sonatel.com',
+        'tapha.sow@orange-sonatel.com',
+      ], // list of receivers
+      subject: `Rapport d'actvité du ${formateDate(date)}`, // Subject line
+      html: emailHtml, // html body
     });
   }
 
@@ -98,7 +111,7 @@ const ShiftPage = () => {
         <h1 className="text-2xl font-semibold">Shifts</h1>
         <fetcher.Form method="post">
           <Button type="submit" name="_action" value="postShift">
-            New Shift
+            Nouveau Shift
           </Button>
         </fetcher.Form>
       </div>

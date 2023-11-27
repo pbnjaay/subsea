@@ -8,6 +8,7 @@ import {
   FolderIcon,
   InfoIcon,
   MoreHorizontal,
+  PlusCircleIcon,
   SendIcon,
   SirenIcon,
   TrashIcon,
@@ -130,13 +131,6 @@ export const columns: ColumnDef<Shifts>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start">
-            <DropdownMenuItem className="flex items-center gap-x-2">
-              <InfoIcon className="w-3 h-3" />
-              <Link className="w-full" to={`${shift.id}`}>
-                Voir détails
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
             <DropdownMenuItem>
               <fetcher.Form
                 method="PATCH"
@@ -173,7 +167,7 @@ export const columns: ColumnDef<Shifts>[] = [
                   defaultValue={shift.is_alarm_checked ? 'true' : 'false'}
                 />
                 <button type="submit" name="_action" value="alarm">
-                  Marquer verification des alarms
+                  Marquer verification des alarmes
                 </button>
                 <input
                   type="number"
@@ -206,25 +200,25 @@ export const columns: ColumnDef<Shifts>[] = [
                 />
               </fetcher.Form>
             </DropdownMenuItem>
-            {!shift.end_at && (
-              <DropdownMenuItem>
-                <fetcher.Form
-                  method="PATCH"
-                  className="flex items-center gap-x-2"
-                >
-                  <SendIcon className="w-3 h-3" />
-                  <button type="submit" name="_action" value="end">
-                    Envoyer votre rapport de vacation
-                  </button>
-                  <input
-                    type="number"
-                    defaultValue={shift.id}
-                    name="shiftId"
-                    hidden
-                  />
-                </fetcher.Form>
-              </DropdownMenuItem>
-            )}
+
+            <DropdownMenuItem>
+              <fetcher.Form
+                method="PATCH"
+                className="flex items-center gap-x-2"
+              >
+                <SendIcon className="w-3 h-3" />
+                <button type="submit" name="_action" value="end">
+                  Envoyer votre rapport de vacation
+                </button>
+                <input
+                  type="number"
+                  defaultValue={shift.id}
+                  name="shiftId"
+                  hidden
+                />
+              </fetcher.Form>
+            </DropdownMenuItem>
+
             <DropdownMenuItem>
               <fetcher.Form
                 method="PATCH"
@@ -241,6 +235,13 @@ export const columns: ColumnDef<Shifts>[] = [
                   defaultValue={shift.id}
                 />
               </fetcher.Form>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="flex items-center gap-x-2">
+              <PlusCircleIcon className="w-4 h-4" />
+              <Link className="w-full" to={`${shift.id}`}>
+                Voir plus
+              </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

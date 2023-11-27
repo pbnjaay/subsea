@@ -1,10 +1,10 @@
 import { LoaderFunctionArgs, json } from '@remix-run/node';
 import { useLoaderData, useNavigate, useNavigation } from '@remix-run/react';
 import invariant from 'tiny-invariant';
-import Action from '~/components/action';
 import { Button } from '~/components/ui/button';
 import { deleteActivity, getActivities, getShift } from '~/services/api';
 import { formateDate } from '~/services/utils';
+import Action from './action';
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   invariant(params.shiftId, 'Missing shiftId param');

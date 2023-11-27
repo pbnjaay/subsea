@@ -1,29 +1,26 @@
-import { useEffect } from 'react';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from './ui/card';
+} from '~/components/ui/card';
 import {
   ActivityIcon,
   BugIcon,
   CircleEllipsis,
-  CircleOff,
   EditIcon,
   PhoneIncoming,
   ScrollText,
-  ShieldAlert,
   TrashIcon,
 } from 'lucide-react';
 import { useFetcher } from 'react-router-dom';
-import { Badge } from './ui/badge';
-import { Button } from './ui/button';
+import { Button } from '~/components/ui/button';
 import { useNavigate } from '@remix-run/react';
 import { Database } from 'db_types';
+import { Badge } from '~/components/ui/badge';
 
-interface Activity {
+export interface Activity {
   created_at: string;
   title: string | null;
   description: string | null;
@@ -33,7 +30,6 @@ interface Activity {
   type: Database['public']['Enums']['type'];
   state: Database['public']['Enums']['state'];
 }
-[];
 
 const Action = ({ activities }: { activities: Activity[] | null }) => {
   const fetcher = useFetcher();
