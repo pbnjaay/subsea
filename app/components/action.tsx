@@ -21,6 +21,7 @@ import { useFetcher } from 'react-router-dom';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { useNavigate } from '@remix-run/react';
+import { Database } from 'db_types';
 
 interface Activity {
   created_at: string;
@@ -28,35 +29,17 @@ interface Activity {
   description: string | null;
   id: number;
   shift: number | null;
-  system: 'sat3' | 'mainone' | 'rafia' | 'ace';
-  type: 'claim' | 'callID' | 'instance' | 'other' | null;
+  system: Database['public']['Enums']['system'];
+  type: Database['public']['Enums']['type'];
+  state: Database['public']['Enums']['state'];
 }
 [];
 
-interface Warning {
-  created_at: string;
-  description: string | null;
-  end_date: string | null;
-  id: number;
-  shift: number | null;
-  state: 'open' | 'in progress' | 'closed' | null;
-  system: 'sat3' | 'mainone' | 'rafia' | 'ace' | null;
-  title: string | null;
-  type: 'signalisation' | 'incident' | null;
-}
-[];
-
-const Action = ({
-  activities,
-  warnings,
-}: {
-  activities: Activity[] | null;
-  warnings: Warning[] | null;
-}) => {
+const Action = ({ activities }: { activities: Activity[] | null }) => {
   const fetcher = useFetcher();
   const navigate = useNavigate();
 
-  const getActivityTypeCount = (type: string) => {
+  const getActivityTypeCount = (type: Database['public']['Enums']['type']) => {
     let count = 0;
     activities?.map((activity) => {
       if (activity.type === type) count += 1;
@@ -65,44 +48,30 @@ const Action = ({
     return count;
   };
 
-  const getWarningTypeCount = (type: string) => {
-    let count = 0;
-    warnings?.map((warning) => {
-      if (warning.type === type) count += 1;
-    });
-
-    return count;
-  };
-
   const options = [
     {
       title: 'Call ID',
-      count: getActivityTypeCount('callID'),
+      count: getActivityTypeCount('call Id'),
       icon: <PhoneIncoming className="w-4 h-4" />,
     },
     {
-      title: 'Instance',
-      count: getActivityTypeCount('instance'),
-      icon: <ShieldAlert className="w-4 h-4" />,
-    },
-    {
-      title: 'Claim',
-      count: getActivityTypeCount('claim'),
+      title: 'Plainte',
+      count: getActivityTypeCount('plainte'),
       icon: <ScrollText className="w-4 h-4" />,
     },
     {
       title: 'Incident',
-      count: getWarningTypeCount('incident'),
+      count: getActivityTypeCount('incident'),
       icon: <BugIcon className="w-4 h-4" />,
     },
     {
       title: 'Signal',
-      count: getWarningTypeCount('signalisation'),
+      count: getActivityTypeCount('signalisation'),
       icon: <ActivityIcon className="w-4 h-4" />,
     },
     {
-      title: 'Other',
-      count: getActivityTypeCount('other'),
+      title: 'Autre',
+      count: getActivityTypeCount('autre'),
       icon: <CircleEllipsis className="w-4 h-4" />,
     },
   ];
@@ -127,8 +96,8 @@ const Action = ({
       <div className="flex gap-y-4 flex-grow">
         <Card className="w-full">
           <CardHeader>
-            <CardTitle className="text-lg">Actions</CardTitle>
-            <CardDescription>List of actions</CardDescription>
+            <CardTitle className="text-lg">Activités</CardTitle>
+            <CardDescription>Liste des activités</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col space-y-2">
@@ -148,6 +117,7 @@ const Action = ({
                     <div className="flex space-x-2">
                       <Badge className="capitalize">{activity.type}</Badge>
                       <Badge className="capitalize">{activity.system}</Badge>
+                      <Badge className="capitalize">{activity.state}</Badge>
                     </div>
                   </div>
                   <div className="group-hover:flex gap-x-2 hidden">
@@ -175,56 +145,6 @@ const Action = ({
                         defaultValue={activity.id}
                         name="id"
                       />
-                    </fetcher.Form>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="flex flex-col space-y-2">
-              {warnings?.map((warning, i) => (
-                <div
-                  key={i}
-                  className={`group flex items-center justify-between p-4 hover:bg-muted rounded-sm cursor-pointer ${
-                    Number(fetcher.formData?.get('id')) === warning.id
-                      ? 'opacity-50 transition-opdacity'
-                      : 'opacity-100 transition-opdacity'
-                  }`}
-                >
-                  <div className="flex flex-col space-y-2">
-                    <p className="text-sm font-semibold leading-none">
-                      {warning.title}
-                    </p>
-                    <div className="flex space-x-2">
-                      <Badge className="capitalize">{warning.type}</Badge>
-                      <Badge className="capitalize">{warning.system}</Badge>
-                      <Badge className="capitalize">{warning.state}</Badge>
-                    </div>
-                  </div>
-                  <div className="group-hover:flex gap-x-2 hidden">
-                    <Button
-                      size={'icon'}
-                      variant={'ghost'}
-                      type="submit"
-                      onClick={() => navigate(`editwarning/${warning.id}`)}
-                    >
-                      <EditIcon className="w-4 h-4" />
-                    </Button>
-                    <fetcher.Form method="delete">
-                      <Button
-                        size={'icon'}
-                        variant={'ghost'}
-                        type="submit"
-                        name="_action"
-                        value="deleteWarning"
-                      >
-                        <input
-                          type="number"
-                          hidden
-                          defaultValue={warning.id}
-                          name="id"
-                        />
-                        <TrashIcon className="w-4 h-4 text-red-600" />
-                      </Button>
                     </fetcher.Form>
                   </div>
                 </div>

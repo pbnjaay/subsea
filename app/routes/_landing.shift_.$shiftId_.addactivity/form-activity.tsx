@@ -18,26 +18,28 @@ import {
 } from '~/components/ui/select';
 import { Textarea } from '~/components/ui/textarea';
 
-const FormWarning = () => {
+const FormActivity = () => {
   const navigation = useNavigation();
   const navigate = useNavigate();
 
   return (
-    <Card>
+    <Card className="w-1/2">
       <CardHeader>
-        <CardTitle>Add new warning</CardTitle>
-        <CardDescription>Create quickly a warning</CardDescription>
+        <CardTitle>Ajouter une nouvelle activité</CardTitle>
+        <CardDescription>
+          Crée une activité rapidement en remplissant ce formulaire
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <Form className="space-y-4" method="post">
           <div className="space-y-2">
-            <Label>Title</Label>
-            <Input name="title" required />
+            <Label>Titre</Label>
+            <Input name="title" type="text" required />
           </div>
           <div className="flex space-x-4">
             <Select name="system" required>
-              <SelectTrigger>
-                <SelectValue placeholder="System" />
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Système" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="sat3">Sat3</SelectItem>
@@ -47,22 +49,25 @@ const FormWarning = () => {
               </SelectContent>
             </Select>
             <Select name="type" required>
-              <SelectTrigger>
+              <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Type" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="plainte">Plainte</SelectItem>
+                <SelectItem value="call Id">Call ID</SelectItem>
                 <SelectItem value="signalisation">Signalisation</SelectItem>
                 <SelectItem value="incident">Incident</SelectItem>
+                <SelectItem value="autre">Autre</SelectItem>
               </SelectContent>
             </Select>
             <Select name="state" required>
               <SelectTrigger>
-                <SelectValue placeholder="State" />
+                <SelectValue placeholder="Etat" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="open">Open</SelectItem>
-                <SelectItem value="in progress">In progress</SelectItem>
-                <SelectItem value="closed">Closed</SelectItem>
+                <SelectItem value="open">Ouvert</SelectItem>
+                <SelectItem value="in progress">En cours</SelectItem>
+                <SelectItem value="closed">Fermer</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -71,15 +76,20 @@ const FormWarning = () => {
             <Textarea name="description" />
           </div>
           <div className="space-x-2">
-            <Button type="submit" value="createWarning" name="_action">
-              {navigation.state === 'submitting' ? 'submitting' : 'submit'}
+            <Button
+              disabled={navigation.state === 'submitting'}
+              type="submit"
+              value="createActivity"
+              name="_action"
+            >
+              {navigation.state === 'submitting' ? 'Soumission' : 'Soumettre'}
             </Button>
             <Button
               type="button"
               variant={'secondary'}
               onClick={() => navigate(-1)}
             >
-              Cancel
+              Annuler
             </Button>
           </div>
         </Form>
@@ -88,4 +98,4 @@ const FormWarning = () => {
   );
 };
 
-export default FormWarning;
+export default FormActivity;

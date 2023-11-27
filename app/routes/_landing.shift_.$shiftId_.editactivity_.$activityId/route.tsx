@@ -26,24 +26,19 @@ import {
   SelectValue,
 } from '~/components/ui/select';
 import { Textarea } from '~/components/ui/textarea';
-import {
-  getActivity,
-  getWarning,
-  updateActivity,
-  updateWarning,
-} from '~/services/api';
+import { getActivity, updateActivity } from '~/services/api';
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   invariant(params.shiftId, 'Missing shiftId param');
   invariant(params.activityId, 'Missing warningId param');
 
   const response = new Response();
-  const activity = await getActivity(parseInt(params.activityId), {
+  const data = await getActivity(parseInt(params.activityId), {
     response,
     request,
   });
 
-  return json({ activity }, { headers: response.headers });
+  return json({ data }, { headers: response.headers });
 };
 
 export const action = async ({ request, params }: LoaderFunctionArgs) => {
@@ -64,25 +59,30 @@ interface Activity {
   description: string | null;
   system: Database['public']['Enums']['system'];
   title: string | null;
-  type: Database['public']['Enums']['activity_type'] | null;
+  type: Database['public']['Enums']['type'] | null;
+  state: Database['public']['Enums']['state'] | null;
 }
 
 const EditWarningPage = () => {
   const navigation = useNavigation();
   const navigate = useNavigate();
-  const { activity } = useLoaderData<typeof loader>();
-  const [act, setAct] = useState<Activity>({
-    description: activity.description,
-    title: activity.title,
-    system: activity.system,
-    type: activity.type,
+  const { data } = useLoaderData<typeof loader>();
+  const [activity, setActivity] = useState<Activity>({
+    description: data.description,
+    title: data.title,
+    system: data.system,
+    type: data.type,
+    state: data.state,
   });
+
   return (
     <div className="container mt-8">
       <Card className="w-1/2">
         <CardHeader>
           <CardTitle>Add new activity</CardTitle>
-          <CardDescription>Create quickly a activity</CardDescription>
+          <CardDescription>
+            Modifié l'activité rapidement en remplissant ce formulaire
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <Form className="space-y-4" method="post">
@@ -92,19 +92,23 @@ const EditWarningPage = () => {
                 name="title"
                 type="text"
                 required
-                defaultValue={act.title as string}
-                onChange={(ev) => setAct({ ...act, title: ev.target.value })}
+                defaultValue={activity.title as string}
+                onChange={(ev) =>
+                  setActivity({ ...activity, title: ev.target.value })
+                }
               />
             </div>
             <div className="flex space-x-4">
               <Select
                 name="system"
                 required
-                defaultValue={act.system}
-                onValueChange={(value) => setAct({ ...act, system: value })}
+                defaultValue={activity.system}
+                onValueChange={(value: Database['public']['Enums']['system']) =>
+                  setActivity({ ...activity, system: value })
+                }
               >
                 <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="System" />
+                  <SelectValue placeholder="Système" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="sat3">Sat3</SelectItem>
@@ -116,17 +120,37 @@ const EditWarningPage = () => {
               <Select
                 name="type"
                 required
-                defaultValue={act.type as string}
-                onValueChange={(value) => setAct({ ...act, type: value })}
+                defaultValue={activity.type as string}
+                onValueChange={(value: Database['public']['Enums']['type']) =>
+                  setActivity({ ...activity, type: value })
+                }
               >
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="claim">Claim</SelectItem>
-                  <SelectItem value="callID">Call ID</SelectItem>
-                  <SelectItem value="instance">Instance</SelectItem>
-                  <SelectItem value="other">Divers</SelectItem>
+                  <SelectItem value="plainte">Plainte</SelectItem>
+                  <SelectItem value="call Id">Call ID</SelectItem>
+                  <SelectItem value="signalisation">Signalisation</SelectItem>
+                  <SelectItem value="incident">Incident</SelectItem>
+                  <SelectItem value="autre">Autre</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select
+                name="state"
+                required
+                defaultValue={activity.state as string}
+                onValueChange={(value: Database['public']['Enums']['state']) =>
+                  setActivity({ ...activity, state: value })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Etat" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="open">Ouvert</SelectItem>
+                  <SelectItem value="in progress">En cours</SelectItem>
+                  <SelectItem value="closed">Fermer</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -134,9 +158,9 @@ const EditWarningPage = () => {
               <Label>Description</Label>
               <Textarea
                 name="description"
-                defaultValue={act.description as string}
+                defaultValue={activity.description as string}
                 onChange={(ev) =>
-                  setAct({ ...act, description: ev.target.value })
+                  setActivity({ ...activity, description: ev.target.value })
                 }
               />
             </div>
@@ -145,14 +169,14 @@ const EditWarningPage = () => {
                 disabled={navigation.state === 'submitting'}
                 type="submit"
               >
-                {navigation.state === 'submitting' ? 'submitting' : 'submit'}
+                {navigation.state === 'submitting' ? 'soumission' : 'soumettre'}
               </Button>
               <Button
                 type="button"
                 variant={'secondary'}
                 onClick={() => navigate(-1)}
               >
-                Cancel
+                Annuler
               </Button>
             </div>
           </Form>

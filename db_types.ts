@@ -15,27 +15,30 @@ export interface Database {
           description: string | null
           id: number
           shift: number | null
+          state: Database["public"]["Enums"]["state"]
           system: Database["public"]["Enums"]["system"]
-          title: string | null
-          type: Database["public"]["Enums"]["activity_type"] | null
+          title: string
+          type: Database["public"]["Enums"]["type"]
         }
         Insert: {
           created_at?: string
           description?: string | null
           id?: number
           shift?: number | null
+          state?: Database["public"]["Enums"]["state"]
           system: Database["public"]["Enums"]["system"]
-          title?: string | null
-          type?: Database["public"]["Enums"]["activity_type"] | null
+          title?: string
+          type: Database["public"]["Enums"]["type"]
         }
         Update: {
           created_at?: string
           description?: string | null
           id?: number
           shift?: number | null
+          state?: Database["public"]["Enums"]["state"]
           system?: Database["public"]["Enums"]["system"]
-          title?: string | null
-          type?: Database["public"]["Enums"]["activity_type"] | null
+          title?: string
+          type?: Database["public"]["Enums"]["type"]
         }
         Relationships: [
           {
@@ -111,50 +114,6 @@ export interface Database {
           }
         ]
       }
-      warningpoint: {
-        Row: {
-          created_at: string
-          description: string | null
-          end_date: string | null
-          id: number
-          shift: number | null
-          state: Database["public"]["Enums"]["state"] | null
-          system: Database["public"]["Enums"]["system"] | null
-          title: string | null
-          type: Database["public"]["Enums"]["signal_incident"] | null
-        }
-        Insert: {
-          created_at?: string
-          description?: string | null
-          end_date?: string | null
-          id?: number
-          shift?: number | null
-          state?: Database["public"]["Enums"]["state"] | null
-          system?: Database["public"]["Enums"]["system"] | null
-          title?: string | null
-          type?: Database["public"]["Enums"]["signal_incident"] | null
-        }
-        Update: {
-          created_at?: string
-          description?: string | null
-          end_date?: string | null
-          id?: number
-          shift?: number | null
-          state?: Database["public"]["Enums"]["state"] | null
-          system?: Database["public"]["Enums"]["system"] | null
-          title?: string | null
-          type?: Database["public"]["Enums"]["signal_incident"] | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "warningpoint_shift_fkey"
-            columns: ["shift"]
-            isOneToOne: false
-            referencedRelation: "shift"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
     }
     Views: {
       [_ in never]: never
@@ -163,10 +122,9 @@ export interface Database {
       [_ in never]: never
     }
     Enums: {
-      activity_type: "claim" | "callID" | "instance" | "other"
-      signal_incident: "signalisation" | "incident"
       state: "open" | "in progress" | "closed"
       system: "sat3" | "mainone" | "rafia" | "ace"
+      type: "plainte" | "call Id" | "signalisation" | "incident" | "autre"
     }
     CompositeTypes: {
       [_ in never]: never

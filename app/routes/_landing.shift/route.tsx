@@ -12,6 +12,7 @@ import {
 import { DataTable } from './data-table';
 import { columns } from './columns';
 import { Button } from '~/components/ui/button';
+import { mailer } from '~/entry.server';
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const response = new Response();
@@ -31,7 +32,31 @@ export const action = async ({ request, params }: LoaderFunctionArgs) => {
 
   const is_checked = checked === 'false' ? false : true;
 
-  if (_action === 'end') await endShift(Number(shiftId), { request, response });
+  if (_action === 'end') {
+    await endShift(Number(shiftId), { request, response });
+
+    const transporter = mailer.createTransport({
+      host: 'webmail.orange-sonatel.com',
+      port: 587,
+      secure: false,
+      auth: {
+        user: 'S_SupSMS',
+        pass: 'Sonatel2022',
+      },
+      tls: {
+        ciphers: 'TLSv1.2',
+        rejectUnauthorized: false,
+      },
+    });
+
+    await transporter.sendMail({
+      from: 'supervision.services@orange-sonatel.com', // sender address
+      to: 'papabassirou.ndiaye@orange-sonatel.com', // list of receivers
+      subject: 'Hello ✔', // Subject line
+      text: 'Hello world?', // plain text body
+      html: '<b>Hello world?</b>', // html body
+    });
+  }
 
   if (_action === 'destroy')
     await deleteShift(Number(shiftId), { request, response });

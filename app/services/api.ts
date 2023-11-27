@@ -53,22 +53,6 @@ export const getActivities = async (
   return activities;
 };
 
-export const getWarningPoints = async (
-  shiftId: string,
-  { request, response }: ApiCall
-) => {
-  const supabase = CreateServersupabase({ request, response });
-  let { data: warningPoints, error } = await supabase
-    .from('warningpoint')
-    .select(`*`)
-    .eq('shift', shiftId)
-    .order('created_at', { ascending: false });
-
-  if (error) throw new Error(error.message);
-
-  return warningPoints;
-};
-
 export const postShift = async ({ request, response }: ApiCall) => {
   const supabase = CreateServersupabase({ request, response });
   const { data: shift, error } = await supabase
@@ -127,23 +111,6 @@ export const deleteWarning = async (
   if (error) throw new Error(error.message);
 };
 
-export const updateWarning = async (
-  warningId: number,
-  values: any,
-  { request, response }: ApiCall
-) => {
-  const supabase = CreateServersupabase({ request, response });
-  const { data: warning, error } = await supabase
-    .from('warningpoint')
-    .update({ ...values })
-    .eq('id', warningId)
-    .select()
-    .single();
-
-  if (error) throw new Error(error.message);
-  return warning;
-};
-
 export const updateActivity = async (
   activityId: number,
   values: any,
@@ -159,27 +126,6 @@ export const updateActivity = async (
 
   if (error) throw new Error(error.message);
   return activity;
-};
-
-export const getWarning = async (
-  warningId: number,
-  { request, response }: ApiCall
-) => {
-  const supabase = CreateServersupabase({ request, response });
-  const { data: warning, error } = await supabase
-    .from('warningpoint')
-    .select('*')
-    .eq('id', warningId)
-    .single();
-
-  if (error) throw new Error(error.message);
-  if (!warning)
-    throw new Response('warning not found', {
-      status: 404,
-      statusText: 'Not found',
-    });
-
-  return warning;
 };
 
 export const getActivity = async (
@@ -202,26 +148,6 @@ export const getActivity = async (
     });
 
   return activity;
-};
-
-export const postWarning = async (
-  shiftId: number,
-  values: any,
-  { request, response }: ApiCall
-) => {
-  const supabase = CreateServersupabase({ request, response });
-
-  const { data: warning, error } = await supabase
-    .from('warningpoint')
-    .insert({
-      ...values,
-      shift: shiftId,
-    })
-    .select();
-
-  if (error) throw new Error(error.message);
-
-  return warning;
 };
 
 export const getUsername = async (

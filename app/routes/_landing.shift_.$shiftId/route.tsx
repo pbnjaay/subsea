@@ -3,14 +3,7 @@ import { useLoaderData, useNavigate, useNavigation } from '@remix-run/react';
 import invariant from 'tiny-invariant';
 import Action from '~/components/action';
 import { Button } from '~/components/ui/button';
-import {
-  deleteActivity,
-  deleteWarning,
-  endShift,
-  getActivities,
-  getShift,
-  getWarningPoints,
-} from '~/services/api';
+import { deleteActivity, getActivities, getShift } from '~/services/api';
 import { formateDate } from '~/services/utils';
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
@@ -18,14 +11,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const response = new Response();
   const shift = await getShift(parseInt(params.shiftId), { request, response });
   const activities = await getActivities(params.shiftId, { request, response });
-  const warningPoints = await getWarningPoints(params.shiftId, {
-    request,
-    response,
-  });
-  return json(
-    { shift, activities, warningPoints },
-    { headers: response.headers }
-  );
+  return json({ shift, activities }, { headers: response.headers });
 };
 
 export const action = async ({ request, params }: LoaderFunctionArgs) => {
@@ -38,15 +24,11 @@ export const action = async ({ request, params }: LoaderFunctionArgs) => {
     await deleteActivity(Number(id), { request, response });
   }
 
-  if (_action === 'deleteWarning') {
-    await deleteWarning(Number(id), { request, response });
-  }
-
   return json({}, { headers: response.headers });
 };
 
 const ShiftDetailsPage = () => {
-  const { shift, activities, warningPoints } = useLoaderData<typeof loader>();
+  const { shift, activities } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const navigation = useNavigation();
 
@@ -58,12 +40,12 @@ const ShiftDetailsPage = () => {
           {formateDate(new Date(shift.created_at))}
         </h1>
         <div className="flex gap-x-4">
-          <Button onClick={() => navigate(`/shift/${shift.id}/addaction`)}>
-            Add Action
+          <Button onClick={() => navigate(`/shift/${shift.id}/addactivity`)}>
+            Nouvelle activité
           </Button>
         </div>
       </div>
-      <Action activities={activities} warnings={warningPoints} />
+      <Action activities={activities} />
     </div>
   );
 };
