@@ -14,10 +14,6 @@ import {
 import { DataTable } from './data-table';
 import { columns } from './columns';
 import { Button } from '~/components/ui/button';
-import { mailer } from '~/entry.server';
-import { render } from '@react-email/render';
-import { formateDate } from '~/services/utils';
-import Email from '~/components/email';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -48,43 +44,6 @@ export const action = async ({ request, params }: LoaderFunctionArgs) => {
   }
 
   const is_checked = checked === 'false' ? false : true;
-
-  if (_action === 'end') {
-    await endShift(Number(shiftId), { request, response });
-    const activities = await getActivities(String(shiftId), {
-      request,
-      response,
-    });
-
-    const shift = await getShift(Number(shiftId), { request, response });
-
-    const emailHtml = render(<Email activities={activities} shift={shift} />);
-    const date = new Date(Date.now());
-
-    const transporter = mailer.createTransport({
-      host: 'webmail.orange-sonatel.com',
-      port: 587,
-      secure: false,
-      auth: {
-        user: 'S_SupSMS',
-        pass: 'Sonatel2022',
-      },
-      tls: {
-        ciphers: 'TLSv1.2',
-        rejectUnauthorized: false,
-      },
-    });
-
-    await transporter.sendMail({
-      from: 'supervision.services@orange-sonatel.com',
-      to: [
-        'papabassirou.ndiaye@orange-sonatel.com',
-        'tapha.sow@orange-sonatel.com',
-      ],
-      subject: `Rapport d'actvité du ${formateDate(date)}`,
-      html: emailHtml,
-    });
-  }
 
   if (_action === 'destroy')
     await deleteShift(Number(shiftId), { request, response });

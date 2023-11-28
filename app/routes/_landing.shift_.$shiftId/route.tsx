@@ -7,7 +7,12 @@ import {
 } from '@remix-run/react';
 import invariant from 'tiny-invariant';
 import { Button } from '~/components/ui/button';
-import { deleteActivity, getActivities, getShift } from '~/services/api';
+import {
+  deleteActivity,
+  endShift,
+  getActivities,
+  getShift,
+} from '~/services/api';
 import { formateDate } from '~/services/utils';
 import Action from './action';
 import {
@@ -22,6 +27,9 @@ import {
   AlertDialogTrigger,
 } from '~/components/ui/alert-dialog';
 import { MailPlusIcon, PlusSquareIcon, SendIcon, icons } from 'lucide-react';
+import Email from '~/components/email';
+import { mailer } from '~/entry.server';
+import { render } from '@react-email/render';
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   invariant(params.shiftId, 'Missing shiftId param');
@@ -37,6 +45,43 @@ export const action = async ({ request, params }: LoaderFunctionArgs) => {
   const formData = await request.formData();
   const { _action, id } = Object.fromEntries(formData);
 
+  if (_action === 'end') {
+    await endShift(Number(params.shiftId), { request, response });
+    const activities = await getActivities(String(params.shiftId), {
+      request,
+      response,
+    });
+
+    const shift = await getShift(Number(params.shiftId), { request, response });
+
+    const emailHtml = render(<Email activities={activities} shift={shift} />);
+    const date = new Date(Date.now());
+
+    const transporter = mailer.createTransport({
+      host: 'webmail.orange-sonatel.com',
+      port: 587,
+      secure: false,
+      auth: {
+        user: 'S_SupSMS',
+        pass: 'Sonatel2022',
+      },
+      tls: {
+        ciphers: 'TLSv1.2',
+        rejectUnauthorized: false,
+      },
+    });
+
+    await transporter.sendMail({
+      from: 'supervision.services@orange-sonatel.com',
+      to: [
+        'papabassirou.ndiaye@orange-sonatel.com',
+        'tapha.sow@orange-sonatel.com',
+      ],
+      subject: `Rapport d'actvité du ${formateDate(date)}`,
+      html: emailHtml,
+    });
+  }
+
   if (_action === 'deleteActivity') {
     await deleteActivity(Number(id), { request, response });
   }
@@ -47,7 +92,6 @@ export const action = async ({ request, params }: LoaderFunctionArgs) => {
 const ShiftDetailsPage = () => {
   const { shift, activities } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
-  const navigation = useNavigation();
   const fetcher = useFetcher();
 
   if (!shift) return;

@@ -30,6 +30,7 @@ import {
   ThemeProvider,
   useTheme,
 } from 'remix-themes';
+import { Toaster } from './components/ui/toaster';
 
 type TypedSupabaseClient = SupabaseClient<Database>;
 
@@ -103,6 +104,7 @@ export function App() {
       </head>
       <body>
         <Outlet context={{ supabase }} />
+        <Toaster />
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
