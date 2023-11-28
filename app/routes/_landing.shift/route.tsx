@@ -29,6 +29,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '~/components/ui/alert-dialog';
+import { icons } from 'lucide-react';
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const response = new Response();
@@ -125,7 +126,7 @@ const ShiftPage = () => {
         <h1 className="text-2xl font-semibold">Shifts</h1>
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button>Nouveau Shift</Button>
+            <Button size={'sm'}>Nouveau</Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>

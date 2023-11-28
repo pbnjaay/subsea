@@ -3,6 +3,7 @@ import { CheckCircledIcon, CrossCircledIcon } from '@radix-ui/react-icons';
 import { Link, useFetcher, useOutletContext } from '@remix-run/react';
 import { ColumnDef } from '@tanstack/react-table';
 import {
+  CircleDashed,
   DoorOpenIcon,
   EyeIcon,
   FolderIcon,
@@ -87,7 +88,7 @@ export const columns: ColumnDef<Shifts>[] = [
       return end_date ? (
         <div className="text-justify font-medium">{formateDate(end_date)}</div>
       ) : (
-        <Badge>Shift en cours</Badge>
+        <span className="inline-flex justify-center w-2 h-2 bg-green-600 rounded-full"></span>
       );
     },
   },
