@@ -1,6 +1,6 @@
 import { CheckCircledIcon, CrossCircledIcon } from '@radix-ui/react-icons';
 
-import { Link, useFetcher } from '@remix-run/react';
+import { Link, useFetcher, useOutletContext } from '@remix-run/react';
 import { ColumnDef } from '@tanstack/react-table';
 import {
   DoorOpenIcon,
@@ -13,6 +13,17 @@ import {
   SirenIcon,
   TrashIcon,
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '~/components/ui/alert-dialog';
 import { Badge } from '~/components/ui/badge';
 
 import { Button } from '~/components/ui/button';
@@ -23,12 +34,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
+import { SupabaseOutletContext } from '~/root';
 import { formateDate } from '~/services/utils';
+import { Profile } from '../_landing/header';
 
 export type Shifts = {
   id: number;
   created_at: string;
   supervisor: string | null;
+  profiles: Profile | null;
   end_at: string | null;
   is_basic_done: boolean | null;
   is_room_checked: boolean | null;
@@ -41,8 +55,16 @@ export const columns: ColumnDef<Shifts>[] = [
     header: () => <div className="text-justify">Id</div>,
   },
   {
-    accessorKey: 'supervisor',
+    accessorKey: 'profiles',
     header: () => <div className="text-justify">Superviseur</div>,
+    cell: ({ row }) => {
+      const supervisor = row.getValue<Profile>('profiles');
+      return (
+        <div className="text-justify font-medium">
+          {supervisor ? supervisor.username : 'no name'}
+        </div>
+      );
+    },
   },
   {
     accessorKey: 'created_at',
@@ -131,93 +153,79 @@ export const columns: ColumnDef<Shifts>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start">
-            <DropdownMenuItem>
-              <fetcher.Form
-                method="PATCH"
-                className="flex items-center gap-x-2"
-              >
-                <FolderIcon className="w-3 h-3" />
-                <input
-                  type="text"
-                  hidden
-                  name="checked"
-                  defaultValue={shift.is_basic_done ? 'true' : 'false'}
-                />
-                <button type="submit" name="_action" value="basic">
-                  Marquer basique réseau
-                </button>
-                <input
-                  type="number"
-                  defaultValue={shift.id}
-                  name="shiftId"
-                  hidden
-                />
-              </fetcher.Form>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <fetcher.Form
-                method="PATCH"
-                className="flex items-center gap-x-2"
-              >
-                <SirenIcon className="w-3 h-3" />
-                <input
-                  type="text"
-                  hidden
-                  name="checked"
-                  defaultValue={shift.is_alarm_checked ? 'true' : 'false'}
-                />
-                <button type="submit" name="_action" value="alarm">
-                  Marquer verification des alarmes
-                </button>
-                <input
-                  type="number"
-                  defaultValue={shift.id}
-                  name="shiftId"
-                  hidden
-                />
-              </fetcher.Form>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <fetcher.Form
-                method="PATCH"
-                className="flex items-center gap-x-2"
-              >
-                <DoorOpenIcon className="w-3 h-3" />
-                <input
-                  type="text"
-                  hidden
-                  name="checked"
-                  defaultValue={shift.is_room_checked ? 'true' : 'false'}
-                />
-                <button type="submit" name="_action" value="room">
-                  Marquer ronde salle techniques
-                </button>
-                <input
-                  type="number"
-                  defaultValue={shift.id}
-                  name="shiftId"
-                  hidden
-                />
-              </fetcher.Form>
-            </DropdownMenuItem>
-
-            <DropdownMenuItem>
-              <fetcher.Form
-                method="PATCH"
-                className="flex items-center gap-x-2"
-              >
-                <SendIcon className="w-3 h-3" />
-                <button type="submit" name="_action" value="end">
-                  Envoyer votre rapport de vacation
-                </button>
-                <input
-                  type="number"
-                  defaultValue={shift.id}
-                  name="shiftId"
-                  hidden
-                />
-              </fetcher.Form>
-            </DropdownMenuItem>
+            {!shift.end_at && (
+              <>
+                <DropdownMenuItem>
+                  <fetcher.Form
+                    method="PATCH"
+                    className="flex items-center gap-x-2"
+                  >
+                    <FolderIcon className="w-3 h-3" />
+                    <input
+                      type="text"
+                      hidden
+                      name="checked"
+                      defaultValue={shift.is_basic_done ? 'true' : 'false'}
+                    />
+                    <button type="submit" name="_action" value="basic">
+                      Marquer basique réseau
+                    </button>
+                    <input
+                      type="number"
+                      defaultValue={shift.id}
+                      name="shiftId"
+                      hidden
+                    />
+                  </fetcher.Form>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <fetcher.Form
+                    method="PATCH"
+                    className="flex items-center gap-x-2"
+                  >
+                    <SirenIcon className="w-3 h-3" />
+                    <input
+                      type="text"
+                      hidden
+                      name="checked"
+                      defaultValue={shift.is_alarm_checked ? 'true' : 'false'}
+                    />
+                    <button type="submit" name="_action" value="alarm">
+                      Marquer verification des alarmes
+                    </button>
+                    <input
+                      type="number"
+                      defaultValue={shift.id}
+                      name="shiftId"
+                      hidden
+                    />
+                  </fetcher.Form>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <fetcher.Form
+                    method="PATCH"
+                    className="flex items-center gap-x-2"
+                  >
+                    <DoorOpenIcon className="w-3 h-3" />
+                    <input
+                      type="text"
+                      hidden
+                      name="checked"
+                      defaultValue={shift.is_room_checked ? 'true' : 'false'}
+                    />
+                    <button type="submit" name="_action" value="room">
+                      Marquer ronde salle techniques
+                    </button>
+                    <input
+                      type="number"
+                      defaultValue={shift.id}
+                      name="shiftId"
+                      hidden
+                    />
+                  </fetcher.Form>
+                </DropdownMenuItem>
+              </>
+            )}
 
             <DropdownMenuItem>
               <fetcher.Form

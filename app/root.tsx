@@ -16,7 +16,7 @@ import {
   useNavigation,
   useRevalidator,
 } from '@remix-run/react';
-import { SupabaseClient } from '@supabase/supabase-js';
+import { Session, SupabaseClient } from '@supabase/supabase-js';
 import { useEffect, useState } from 'react';
 import clsx from 'clsx';
 

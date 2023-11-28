@@ -16,8 +16,21 @@ import {
 
 import { Activity } from '~/routes/_landing.shift_.$shiftId/action';
 
-const Email = (props: { activities: Activity[] | null }) => {
-  const { activities } = props;
+interface Shift {
+  created_at: string;
+  end_at: string | null;
+  id: number;
+  is_alarm_checked: boolean | null;
+  is_basic_done: boolean | null;
+  is_room_checked: boolean | null;
+  supervisor: string | null;
+}
+
+const Email = (props: {
+  activities: Activity[] | null;
+  shift: Shift | null;
+}) => {
+  const { activities, shift } = props;
   return (
     <Html>
       <Head />
@@ -80,6 +93,24 @@ const Email = (props: { activities: Activity[] | null }) => {
               ) : (
                 <Text>Pas d'incidents en cours</Text>
               )}
+              <Text>
+                Verification des alarmes:{' '}
+                <span>
+                  {shift?.is_alarm_checked ? 'Executées' : 'Non Executées'}
+                </span>
+              </Text>
+              <Text>
+                Basique quotidienne:
+                <span>
+                  {shift?.is_basic_done ? 'Executées' : 'Non Executées'}
+                </span>
+              </Text>
+              <Text>
+                Ronde salle technique en fin de vacation:
+                <span>
+                  {shift?.is_room_checked ? 'Executées' : 'Non Executées'}
+                </span>
+              </Text>
             </Section>
           </Container>
         </Body>

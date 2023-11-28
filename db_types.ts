@@ -50,25 +50,34 @@ export interface Database {
           }
         ]
       }
-      profile: {
+      profiles: {
         Row: {
-          created_at: string
+          avatar_url: string | null
+          full_name: string | null
           id: string
+          is_admin: boolean
+          updated_at: string | null
           username: string | null
         }
         Insert: {
-          created_at?: string
+          avatar_url?: string | null
+          full_name?: string | null
           id: string
+          is_admin?: boolean
+          updated_at?: string | null
           username?: string | null
         }
         Update: {
-          created_at?: string
+          avatar_url?: string | null
+          full_name?: string | null
           id?: string
+          is_admin?: boolean
+          updated_at?: string | null
           username?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "profile_id_fkey"
+            foreignKeyName: "profiles_id_fkey"
             columns: ["id"]
             isOneToOne: true
             referencedRelation: "users"
@@ -109,7 +118,7 @@ export interface Database {
             foreignKeyName: "shift_supervisor_fkey"
             columns: ["supervisor"]
             isOneToOne: false
-            referencedRelation: "users"
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           }
         ]

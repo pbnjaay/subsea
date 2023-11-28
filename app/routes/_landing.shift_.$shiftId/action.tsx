@@ -19,6 +19,19 @@ import { Button } from '~/components/ui/button';
 import { useNavigate } from '@remix-run/react';
 import { Database } from 'db_types';
 import { Badge } from '~/components/ui/badge';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '~/components/ui/alert-dialog';
+import { CheckCircledIcon } from '@radix-ui/react-icons';
+import { useState } from 'react';
 
 export interface Activity {
   created_at: string;
@@ -125,23 +138,44 @@ const Action = ({ activities }: { activities: Activity[] | null }) => {
                     >
                       <EditIcon className="w-4 h-4" />
                     </Button>
-                    <fetcher.Form method="delete">
-                      <Button
-                        size={'icon'}
-                        variant={'ghost'}
-                        type="submit"
-                        name="_action"
-                        value="deleteActivity"
-                      >
-                        <TrashIcon className="w-4 h-4 text-red-600" />
-                      </Button>
-                      <input
-                        type="number"
-                        hidden
-                        defaultValue={activity.id}
-                        name="id"
-                      />
-                    </fetcher.Form>
+
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button size={'icon'} variant={'ghost'}>
+                          <TrashIcon className="w-4 h-4 text-red-600" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
+                            Êtes-vous absolument sûr ?
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Cette action ne peut être annulée. Cette action
+                            supprimera définitivement ces données de nos
+                            serveurs.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Anuler</AlertDialogCancel>
+                          <fetcher.Form method="delete">
+                            <AlertDialogAction
+                              type="submit"
+                              name="_action"
+                              value="deleteActivity"
+                            >
+                              Continuer
+                            </AlertDialogAction>
+                            <input
+                              type="number"
+                              hidden
+                              defaultValue={activity.id}
+                              name="id"
+                            />
+                          </fetcher.Form>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 </div>
               ))}

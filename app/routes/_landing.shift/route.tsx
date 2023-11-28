@@ -4,6 +4,7 @@ import {
   deleteShift,
   endShift,
   getActivities,
+  getShift,
   getShifts,
   postShift,
   toogleAlarm,
@@ -17,6 +18,17 @@ import { mailer } from '~/entry.server';
 import { render } from '@react-email/render';
 import { formateDate } from '~/services/utils';
 import Email from '~/components/email';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '~/components/ui/alert-dialog';
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const response = new Response();
@@ -43,6 +55,11 @@ export const action = async ({ request, params }: LoaderFunctionArgs) => {
       response,
     });
 
+    const shift = await getShift(Number(shiftId), { request, response });
+
+    const emailHtml = render(<Email activities={activities} shift={shift} />);
+    const date = new Date(Date.now());
+
     const transporter = mailer.createTransport({
       host: 'webmail.orange-sonatel.com',
       port: 587,
@@ -57,17 +74,14 @@ export const action = async ({ request, params }: LoaderFunctionArgs) => {
       },
     });
 
-    const emailHtml = render(<Email activities={activities} />);
-    const date = new Date(Date.now());
-
     await transporter.sendMail({
-      from: 'supervision.services@orange-sonatel.com', // sender address
+      from: 'supervision.services@orange-sonatel.com',
       to: [
         'papabassirou.ndiaye@orange-sonatel.com',
         'tapha.sow@orange-sonatel.com',
-      ], // list of receivers
-      subject: `Rapport d'actvité du ${formateDate(date)}`, // Subject line
-      html: emailHtml, // html body
+      ],
+      subject: `Rapport d'actvité du ${formateDate(date)}`,
+      html: emailHtml,
     });
   }
 
@@ -109,11 +123,33 @@ const ShiftPage = () => {
     >
       <div className="flex justify-between">
         <h1 className="text-2xl font-semibold">Shifts</h1>
-        <fetcher.Form method="post">
-          <Button type="submit" name="_action" value="postShift">
-            Nouveau Shift
-          </Button>
-        </fetcher.Form>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button>Nouveau Shift</Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                Êtes-vous sûr de vouloir commencer un nouveau shift ?
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                Appuyez sur Annuler si vous avez déjà un shift en cours.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Anuler</AlertDialogCancel>
+              <fetcher.Form method="post">
+                <AlertDialogAction
+                  type="submit"
+                  name="_action"
+                  value="postShift"
+                >
+                  Confirmer
+                </AlertDialogAction>
+              </fetcher.Form>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
       {shifts && <DataTable columns={columns} data={shifts} />}
     </div>

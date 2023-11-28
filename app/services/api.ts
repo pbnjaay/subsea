@@ -10,7 +10,7 @@ export const getShifts = async ({ request, response }: ApiCall) => {
   const supabase = CreateServersupabase({ request, response });
   let { data: shift, error } = await supabase
     .from('shift')
-    .select(`*`)
+    .select(`*, profiles(*)`)
     .order('created_at', { ascending: false });
 
   if (error) throw new Error(error.message);
@@ -150,14 +150,14 @@ export const getActivity = async (
   return activity;
 };
 
-export const getUsername = async (
+export const getCurrentUserProfile = async (
   id: string,
   { request, response }: ApiCall
 ) => {
   const supabase = CreateServersupabase({ request, response });
   let { data: profile, error } = await supabase
-    .from('profile')
-    .select(`username`)
+    .from('profiles')
+    .select(`*`)
     .eq('id', id)
     .single();
 
@@ -239,6 +239,30 @@ export const login = async ({ request, response }: ApiCall) => {
     email: String(email),
     password: String(password),
   });
+
+  return error;
+};
+
+export const signUp = async ({ request, response }: ApiCall) => {
+  const supabase = CreateServersupabase({ request, response });
+  const { email, password, fullName, username } = Object.fromEntries(
+    await request.formData()
+  );
+
+  const { data, error } = await supabase.auth.signUp({
+    email: String(email),
+    password: String(password),
+    options: {
+      data: {
+        username: String(username),
+        full_name: String(fullName),
+      },
+    },
+  });
+
+  if (error) throw new Error(error.message);
+
+  console.log(error);
 
   return error;
 };
