@@ -1,5 +1,5 @@
 import { LoaderFunctionArgs, json } from '@remix-run/node';
-import { useFetcher, useLoaderData } from '@remix-run/react';
+import { useFetcher, useLoaderData, useNavigation } from '@remix-run/react';
 import {
   deleteShift,
   endShift,
@@ -72,15 +72,9 @@ export const action = async ({ request, params }: LoaderFunctionArgs) => {
 const ShiftPage = () => {
   const { shifts } = useLoaderData<typeof loader>();
   const fetcher = useFetcher();
-
+  const navigation = useNavigation();
   return (
-    <div
-      className={`container flex flex-col mt-8 gap-y-4 ${
-        fetcher.state === 'submitting'
-          ? 'opacity-50 transition-opacity'
-          : 'opacity-100 transition-opacity'
-      }`}
-    >
+    <div className={`container flex flex-col mt-8 gap-y-4`}>
       <div className="flex justify-between">
         <h1 className="text-2xl font-semibold">Shifts</h1>
         <AlertDialog>
@@ -111,7 +105,9 @@ const ShiftPage = () => {
           </AlertDialogContent>
         </AlertDialog>
       </div>
-      {shifts && <DataTable columns={columns} data={shifts} />}
+      <div className="">
+        {shifts && <DataTable columns={columns} data={shifts} />}
+      </div>
     </div>
   );
 };

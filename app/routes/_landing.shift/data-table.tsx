@@ -1,6 +1,6 @@
 'use client';
 
-import { useNavigation } from '@remix-run/react';
+import { useFetcher, useNavigation } from '@remix-run/react';
 import {
   ColumnDef,
   flexRender,
@@ -30,11 +30,8 @@ export function DataTable<TData, TValue>({
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
-
-  const navigation = useNavigation();
-
   return (
-    <div className="rounded-md border">
+    <div className={`rounded-md border`}>
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
