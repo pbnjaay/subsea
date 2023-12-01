@@ -43,7 +43,7 @@ export const UserNav = ({ profile }: { profile: Profile | null }) => {
         <DropdownMenuGroup>
           <DropdownMenuItem>
             <User className="mr-2 h-4 w-4" />
-            <span>{profile ? profile.username : 'Profile'}</span>
+            <Link to="/me">{profile ? profile.username : 'Profile'}</Link>
           </DropdownMenuItem>
           {profile?.is_admin && (
             <DropdownMenuItem>

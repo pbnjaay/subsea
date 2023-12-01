@@ -2,9 +2,6 @@ import { LoaderFunctionArgs, json } from '@remix-run/node';
 import { useFetcher, useLoaderData, useNavigation } from '@remix-run/react';
 import {
   deleteShift,
-  endShift,
-  getActivities,
-  getShift,
   getShifts,
   postShift,
   toogleAlarm,
@@ -25,7 +22,18 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '~/components/ui/alert-dialog';
-import { icons } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '~/components/ui/dialog';
+import { Label } from '~/components/ui/label';
+import DatePicker from '~/components/date-picker';
+import DateTimePicker from '~/components/date-picker';
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const response = new Response();
@@ -72,38 +80,38 @@ export const action = async ({ request, params }: LoaderFunctionArgs) => {
 const ShiftPage = () => {
   const { shifts } = useLoaderData<typeof loader>();
   const fetcher = useFetcher();
-  const navigation = useNavigation();
   return (
     <div className={`container flex flex-col mt-8 gap-y-4`}>
       <div className="flex justify-between">
         <h1 className="text-2xl font-semibold">Shifts</h1>
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
+        <Dialog>
+          <DialogTrigger asChild>
             <Button size={'sm'}>Nouveau</Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>
-                Êtes-vous sûr de vouloir commencer un nouveau shift ?
-              </AlertDialogTitle>
-              <AlertDialogDescription>
-                Appuyez sur Annuler si vous avez déjà un shift en cours.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Anuler</AlertDialogCancel>
-              <fetcher.Form method="post">
-                <AlertDialogAction
-                  type="submit"
-                  name="_action"
-                  value="postShift"
-                >
-                  Confirmer
-                </AlertDialogAction>
-              </fetcher.Form>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Fixer l'heure de vacation</DialogTitle>
+              <DialogDescription>
+                Donner l'heure exacte de debut et de fin de votre vacation
+              </DialogDescription>
+            </DialogHeader>
+            <fetcher.Form className="flex flex-col space-y-4">
+              <div className="flex flex-col space-y-2">
+                <Label>Heure de debut</Label>
+                <DateTimePicker date={new Date()} setDate={() => new Date()} />
+              </div>
+              <div className="flex flex-col space-y-2">
+                <Label>Heure de fin</Label>
+                <DateTimePicker date={new Date()} setDate={() => new Date()} />
+              </div>
+              <DialogFooter>
+                <Button className="w-full" type="submit">
+                  Save
+                </Button>
+              </DialogFooter>
+            </fetcher.Form>
+          </DialogContent>
+        </Dialog>
       </div>
       <div className="">
         {shifts && <DataTable columns={columns} data={shifts} />}

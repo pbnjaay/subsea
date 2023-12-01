@@ -1,4 +1,4 @@
-import { ActionFunctionArgs, redirect, json } from '@remix-run/node';
+import { ActionFunctionArgs, json, redirect } from '@remix-run/node';
 import { Form, useActionData } from '@remix-run/react';
 import { useEffect } from 'react';
 import { Button } from '~/components/ui/button';
@@ -11,36 +11,45 @@ import {
 } from '~/components/ui/card';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
+import { ToastDescription, ToastAction } from '~/components/ui/toast';
 import { useToast } from '~/components/ui/use-toast';
-import { login } from '~/services/api';
+import { upDatePassword } from '~/services/api';
 
-export const action = async ({ request }: ActionFunctionArgs) => {
+export const action = ({ request }: ActionFunctionArgs) => {
   const response = new Response();
-  const error = await login({ request, response });
-  if (!error) return redirect('/', { headers: response.headers });
-  return json({ error: true }, { headers: response.headers });
+  const error = upDatePassword({ request, response });
+  if (!error) return json({ success: true }, { headers: response.headers });
+  return json({ success: false }, { headers: response.headers });
 };
-
-const LoginPage = () => {
+const ProfilePage = () => {
   const actionData = useActionData<typeof action>();
   const { toast } = useToast();
 
   useEffect(() => {
-    if (actionData?.error) {
+    if (actionData?.success) {
+      toast({
+        description: (
+          <ToastDescription>
+            Votre mot de passe a été modifié avec succès
+          </ToastDescription>
+        ),
+      });
+    }
+    if (!actionData?.success) {
       toast({
         variant: 'destructive',
         title: 'Oh, oh ! Quelque chose a mal tourné.',
-        description: 'Votre login ou mot de passe ne correspond pas',
+        description: 'Votre mot de passe ne correspond pas',
       });
     }
   }, [actionData]);
   return (
-    <div className="flex justify-center mt-8 mx-4 md:mx-0">
+    <div className="container mt-8 mx-4 md:mx-0">
       <Card className="w-[20rem] md:w-[25rem]">
         <CardHeader>
-          <CardTitle>Log in to your account</CardTitle>
+          <CardTitle>Modifie ton mot de passe</CardTitle>
           <CardDescription>
-            Enter your email and password below.
+            Remplissez le formulaire suivant pour modifier votre mot de passe
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -53,12 +62,18 @@ const LoginPage = () => {
             </div>
             <div className="flex flex-col gap-y-2">
               <Label className="font-medium" htmlFor="password">
-                Password
+                Ancien Mot de passe
               </Label>
               <Input name="password" type="password" />
             </div>
+            <div className="flex flex-col gap-y-2">
+              <Label className="font-medium" htmlFor="newPassword">
+                Nouveau mot de passe
+              </Label>
+              <Input name="newPassword" type="password" />
+            </div>
             <Button className="w-full" type="submit">
-              Login
+              Changer
             </Button>
           </Form>
         </CardContent>
@@ -67,4 +82,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default ProfilePage;

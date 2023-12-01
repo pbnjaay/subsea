@@ -1,5 +1,10 @@
 import { LoaderFunctionArgs, json } from '@remix-run/node';
-import { useFetcher, useLoaderData, useNavigate } from '@remix-run/react';
+import {
+  useActionData,
+  useFetcher,
+  useLoaderData,
+  useNavigate,
+} from '@remix-run/react';
 import invariant from 'tiny-invariant';
 import { Button } from '~/components/ui/button';
 import {
@@ -70,7 +75,10 @@ export const action = async ({ request, params }: LoaderFunctionArgs) => {
 
       const info = await transporter.sendMail({
         from: 'supervision.services@orange-sonatel.com',
-        to: ['papabassirou.ndiaye@orange-sonatel.com'],
+        to: [
+          'papabassirou.ndiaye@orange-sonatel.com',
+          'tapha.sow@orange-sonatel.com',
+        ],
         subject: `Rapport d'activité du ${formateDate(date)}`,
         html: emailHtml,
       });
@@ -84,7 +92,7 @@ export const action = async ({ request, params }: LoaderFunctionArgs) => {
 
   if (_action === 'deleteActivity') {
     await deleteActivity(Number(id), { request, response });
-    return json({}, { headers: response.headers });
+    return json({ deleted: true }, { headers: response.headers });
   }
 };
 
@@ -95,7 +103,7 @@ const ShiftDetailsPage = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    if (fetcher.data?.success === 'ok') {
+    if (fetcher?.success === 'ok') {
       toast({
         description: (
           <ToastDescription>Votre rapport a été envoyé</ToastDescription>
@@ -119,7 +127,7 @@ const ShiftDetailsPage = () => {
         <h1 className="text-2xl font-bold">
           {formateDate(new Date(shift.created_at))}
         </h1>
-        <div className="flex gap-x-4">
+        <div className="flex gap-x-2">
           <AlertDialog>
             <AlertDialogTrigger asChild>
               {fetcher.state === 'submitting' ? (

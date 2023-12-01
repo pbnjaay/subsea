@@ -79,9 +79,9 @@ const EditWarningPage = () => {
     <div className="container mt-8">
       <Card className="w-1/2">
         <CardHeader>
-          <CardTitle>Add new activity</CardTitle>
+          <CardTitle>Modifier une activité</CardTitle>
           <CardDescription>
-            Modifié l'activité rapidement en remplissant ce formulaire
+            Modifié l'activité rapidement en editant ce formulaire
           </CardDescription>
         </CardHeader>
         <CardContent>

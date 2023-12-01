@@ -280,3 +280,26 @@ export const getSession = async ({ request, response }: ApiCall) => {
 
   return session;
 };
+
+export const upDatePassword = async ({ request, response }: ApiCall) => {
+  const supabase = CreateServersupabase({ request, response });
+
+  const { newPassword, password, email } = Object.fromEntries(
+    await request.formData()
+  );
+  const { error } = await supabase.auth.signInWithPassword({
+    email: String(email),
+    password: String(password),
+  });
+
+  if (!error) {
+    const { data, error } = await supabase.auth.updateUser({
+      password: String(newPassword),
+    });
+
+    console.log(error);
+
+    if (error) throw new Error(error.message);
+    return error;
+  }
+};

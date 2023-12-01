@@ -62,7 +62,7 @@ export const columns: ColumnDef<Shifts>[] = [
       const supervisor = row.getValue<Profile>('profiles');
       return (
         <div className="text-justify font-medium">
-          {supervisor ? supervisor.username : 'no name'}
+          {supervisor ? supervisor.full_name : 'no name'}
         </div>
       );
     },
