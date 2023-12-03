@@ -7,6 +7,13 @@ export const formateDate = (date: Date) =>
     minute: '2-digit',
   });
 
+export const formateDateWithoutHour = (date: Date) =>
+  date.toLocaleDateString('fr-FR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+
 export function formatInstant(created_at: string) {
   const date = new Date(created_at);
   const now = new Date();

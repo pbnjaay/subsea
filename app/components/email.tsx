@@ -15,15 +15,19 @@ import {
 } from '@react-email/components';
 
 import { Activity } from '~/routes/_landing.shift_.$shiftId/action';
+import { Profile } from '~/routes/_landing/header';
+import { formateDate } from '~/services/utils';
 
 interface Shift {
   created_at: string;
   end_at: string | null;
+  start_at: string | null;
   id: number;
   is_alarm_checked: boolean | null;
   is_basic_done: boolean | null;
   is_room_checked: boolean | null;
   supervisor: string | null;
+  profiles: Profile | null;
 }
 
 const Email = (props: {
@@ -38,9 +42,40 @@ const Email = (props: {
       <Tailwind>
         <Body>
           <Container>
-            <Text>Bonjour, </Text>
+            <Text>
+              <span className="font-semibold">Agent:</span>{' '}
+              {shift?.profiles?.full_name}
+            </Text>
+            <Text>
+              <span className="font-semibold">Heure de debut:</span>{' '}
+              {formateDate(new Date(shift?.start_at as string))}
+            </Text>
+            <Text>
+              <span className="font-semibold">Heure de fin:</span>{' '}
+              {formateDate(new Date(shift?.end_at as string))}
+            </Text>
+            <Text>
+              <span className="font-semibold">Verification des alarmes:</span>{' '}
+              <span>
+                {shift?.is_alarm_checked ? 'Executées' : 'Non Executées'}
+              </span>
+            </Text>
+            <Text>
+              <span className="font-semibold">Basique quotidienne:</span>{' '}
+              <span>
+                {shift?.is_basic_done ? 'Executées' : 'Non Executées'}
+              </span>
+            </Text>
+            <Text>
+              <span className="font-semibold">
+                Ronde salle technique en fin de vacation:
+              </span>{' '}
+              <span>
+                {shift?.is_room_checked ? 'Executées' : 'Non Executées'}
+              </span>
+            </Text>
             <Section>
-              <Heading className="text-black text-[24px] font-normal text-center p-0 my-[0px] mx-0 mb-4">{`Liste des activités (${activities?.length})`}</Heading>
+              <Heading className="text-black text-[24px] font-normal p-0 my-[0px] mx-0 mb-4">{`Liste des activités (${activities?.length})`}</Heading>
               {activities?.length ? (
                 <Container>
                   {activities.map((activity, i) => (
@@ -68,19 +103,19 @@ const Email = (props: {
                         </Row>
                         <Row>
                           <Column align="right" rowSpan={1}>
-                            <Button className="px-3 py-1 rounded bg-[#fa8a3d] text-white font-semibold text-[12px]">
+                            <span className="px-3 py-1 rounded bg-[#fa8a3d] text-white font-semibold text-[12px]">
                               {activity.system}
-                            </Button>
+                            </span>
                           </Column>
                           <Column align="center" rowSpan={2}>
-                            <Button className="px-3 py-1 rounded bg-[#fa8a3d] text-white font-semibold text-[12px]">
+                            <span className="px-3 py-1 rounded bg-[#fa8a3d] text-white font-semibold text-[12px]">
                               {activity.type}
-                            </Button>
+                            </span>
                           </Column>
                           <Column align="left" rowSpan={2}>
-                            <Button className="px-3 py-1 rounded bg-[#fa8a3d] text-white font-semibold text-[12px]">
+                            <span className="px-3 py-1 rounded bg-[#fa8a3d] text-white font-semibold text-[12px]">
                               {activity.state}
-                            </Button>
+                            </span>
                           </Column>
                         </Row>
                       </Row>
@@ -93,24 +128,6 @@ const Email = (props: {
               ) : (
                 <Text>Pas d'incidents en cours</Text>
               )}
-              <Text>
-                Verification des alarmes:{' '}
-                <span>
-                  {shift?.is_alarm_checked ? 'Executées' : 'Non Executées'}
-                </span>
-              </Text>
-              <Text>
-                Basique quotidienne:
-                <span>
-                  {shift?.is_basic_done ? 'Executées' : 'Non Executées'}
-                </span>
-              </Text>
-              <Text>
-                Ronde salle technique en fin de vacation:
-                <span>
-                  {shift?.is_room_checked ? 'Executées' : 'Non Executées'}
-                </span>
-              </Text>
             </Section>
           </Container>
         </Body>

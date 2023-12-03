@@ -1,4 +1,5 @@
 import { Form, useNavigate, useNavigation } from '@remix-run/react';
+import Loader from '~/components/loader';
 import { Button } from '~/components/ui/button';
 import {
   Card,
@@ -82,7 +83,7 @@ const FormActivity = () => {
               value="createActivity"
               name="_action"
             >
-              {navigation.state === 'submitting' ? 'Soumission' : 'Soumettre'}
+              {navigation.state === 'submitting' ? <Loader /> : 'Ajouter'}
             </Button>
             <Button
               type="button"

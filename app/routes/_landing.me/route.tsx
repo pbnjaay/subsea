@@ -1,6 +1,5 @@
-import { ActionFunctionArgs, json, redirect } from '@remix-run/node';
+import { ActionFunctionArgs, json } from '@remix-run/node';
 import { Form, useActionData } from '@remix-run/react';
-import { useEffect } from 'react';
 import { Button } from '~/components/ui/button';
 import {
   Card,
@@ -11,38 +10,41 @@ import {
 } from '~/components/ui/card';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
-import { ToastDescription, ToastAction } from '~/components/ui/toast';
+import { ToastDescription } from '~/components/ui/toast';
 import { useToast } from '~/components/ui/use-toast';
 import { upDatePassword } from '~/services/api';
 
 export const action = ({ request }: ActionFunctionArgs) => {
   const response = new Response();
   const error = upDatePassword({ request, response });
-  if (!error) return json({ success: true }, { headers: response.headers });
-  return json({ success: false }, { headers: response.headers });
+  if (!error)
+    return json(
+      { PasswordSuccesfulyChanged: true },
+      { headers: response.headers }
+    );
+  return json({ error: true }, { headers: response.headers });
 };
 const ProfilePage = () => {
   const actionData = useActionData<typeof action>();
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (actionData?.success) {
-      toast({
-        description: (
-          <ToastDescription>
-            Votre mot de passe a été modifié avec succès
-          </ToastDescription>
-        ),
-      });
-    }
-    if (!actionData?.success) {
-      toast({
-        variant: 'destructive',
-        title: 'Oh, oh ! Quelque chose a mal tourné.',
-        description: 'Votre mot de passe ne correspond pas',
-      });
-    }
-  }, [actionData]);
+  if (actionData?.k) {
+    toast({
+      description: (
+        <ToastDescription>
+          Votre mot de passe a été modifié avec succès
+        </ToastDescription>
+      ),
+    });
+  }
+  if (actionData?.error) {
+    toast({
+      variant: 'destructive',
+      title: 'Oh, oh ! Quelque chose a mal tourné.',
+      description: 'Votre mot de passe ne correspond pas',
+    });
+  }
+
   return (
     <div className="container mt-8 mx-4 md:mx-0">
       <Card className="w-[20rem] md:w-[25rem]">

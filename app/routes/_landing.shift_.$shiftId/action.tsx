@@ -32,6 +32,7 @@ import {
 } from '~/components/ui/alert-dialog';
 import { CheckCircledIcon } from '@radix-ui/react-icons';
 import { useState } from 'react';
+import CardStat from '~/components/card-stat';
 
 export interface Activity {
   created_at: string;
@@ -59,27 +60,27 @@ const Action = ({ activities }: { activities: Activity[] | null }) => {
 
   const options = [
     {
-      title: 'Call ID',
+      label: 'Call ID',
       count: getActivityTypeCount('call Id'),
       icon: <PhoneIncoming className="w-4 h-4" />,
     },
     {
-      title: 'Plainte',
+      label: 'Plainte',
       count: getActivityTypeCount('plainte'),
       icon: <ScrollText className="w-4 h-4" />,
     },
     {
-      title: 'Incident',
+      label: 'Incident',
       count: getActivityTypeCount('incident'),
       icon: <BugIcon className="w-4 h-4" />,
     },
     {
-      title: 'Signal',
+      label: 'Signal',
       count: getActivityTypeCount('signalisation'),
       icon: <ActivityIcon className="w-4 h-4" />,
     },
     {
-      title: 'Autre',
+      label: 'Autre',
       count: getActivityTypeCount('autre'),
       icon: <CircleEllipsis className="w-4 h-4" />,
     },
@@ -89,17 +90,7 @@ const Action = ({ activities }: { activities: Activity[] | null }) => {
     <div className="flex space-x-4">
       <div className="grid grid-cols-2 gap-4 w-1/3 h-fit">
         {options.map((option, i) => (
-          <Card className="w-full px-6 py-4 space-y-2" key={i}>
-            <div className="flex justify-between items-center">
-              <h1 className="font-bold text-2xl">{option.count}</h1>
-              <span className="flex items-center justify-center rounded-full w-8 h-8 bg-muted">
-                {option.icon}
-              </span>
-            </div>
-            <h2 className="text-sm font-semibold text-muted-foreground">
-              {option.title}
-            </h2>
-          </Card>
+          <CardStat option={option} key={i} />
         ))}
       </div>
       <div className="flex gap-y-4 flex-grow">

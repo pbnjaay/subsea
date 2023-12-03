@@ -1,6 +1,7 @@
 import { ActionFunctionArgs, redirect, json } from '@remix-run/node';
-import { Form, useActionData } from '@remix-run/react';
+import { Form, useActionData, useNavigation } from '@remix-run/react';
 import { useEffect } from 'react';
+import Loader from '~/components/loader';
 import { Button } from '~/components/ui/button';
 import {
   Card,
@@ -23,6 +24,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 const LoginPage = () => {
   const actionData = useActionData<typeof action>();
+  const navigation = useNavigation();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -38,9 +40,10 @@ const LoginPage = () => {
     <div className="flex justify-center mt-8 mx-4 md:mx-0">
       <Card className="w-[20rem] md:w-[25rem]">
         <CardHeader>
-          <CardTitle>Log in to your account</CardTitle>
+          <CardTitle>Connectez-vous à votre compte</CardTitle>
           <CardDescription>
-            Enter your email and password below.
+            Saisissez votre adresse électronique et votre mot de passe
+            ci-dessous.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -58,7 +61,7 @@ const LoginPage = () => {
               <Input name="password" type="password" />
             </div>
             <Button className="w-full" type="submit">
-              Login
+              {navigation.state == 'loading' ? <Loader /> : 'Connectez-vous'}
             </Button>
           </Form>
         </CardContent>

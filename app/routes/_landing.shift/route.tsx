@@ -32,8 +32,9 @@ import {
   DialogTrigger,
 } from '~/components/ui/dialog';
 import { Label } from '~/components/ui/label';
-import DatePicker from '~/components/date-picker';
 import DateTimePicker from '~/components/date-picker';
+import { Input } from '~/components/ui/input';
+import Loader from '~/components/loader';
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const response = new Response();
@@ -44,10 +45,15 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 export const action = async ({ request, params }: LoaderFunctionArgs) => {
   const response = new Response();
   const formData = await request.formData();
-  const { _action, shiftId, checked } = Object.fromEntries(formData);
+  const { _action, shiftId, checked, start, end } =
+    Object.fromEntries(formData);
 
   if (_action === 'postShift') {
-    const shift = await postShift({ request, response });
+    const shift = await postShift(
+      { request, response },
+      String(end),
+      String(start)
+    );
     return json({ shift }, { headers: response.headers });
   }
 
@@ -95,18 +101,23 @@ const ShiftPage = () => {
                 Donner l'heure exacte de debut et de fin de votre vacation
               </DialogDescription>
             </DialogHeader>
-            <fetcher.Form className="flex flex-col space-y-4">
+            <fetcher.Form className="flex flex-col space-y-4" method="post">
               <div className="flex flex-col space-y-2">
                 <Label>Heure de debut</Label>
-                <DateTimePicker date={new Date()} setDate={() => new Date()} />
+                <Input type="datetime-local" required name="start"></Input>
               </div>
               <div className="flex flex-col space-y-2">
                 <Label>Heure de fin</Label>
-                <DateTimePicker date={new Date()} setDate={() => new Date()} />
+                <Input type="datetime-local" required name="end"></Input>
               </div>
               <DialogFooter>
-                <Button className="w-full" type="submit">
-                  Save
+                <Button
+                  className="w-full"
+                  type="submit"
+                  name="_action"
+                  value="postShift"
+                >
+                  {fetcher.state === 'submitting' ? <Loader /> : 'Creer'}
                 </Button>
               </DialogFooter>
             </fetcher.Form>

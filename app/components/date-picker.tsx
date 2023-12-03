@@ -1,86 +1,72 @@
 import * as React from 'react';
-import { DateTime } from 'luxon';
+import { format } from 'date-fns';
 import { Calendar as CalendarIcon } from 'lucide-react';
+import { utcToZonedTime, zonedTimeToUtc } from 'date-fns-tz';
 
-import { Button } from './ui/button';
-import { Calendar } from './ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
-import { cn } from '../lib/utils';
-import { SelectSingleEventHandler } from 'react-day-picker';
-import { Label } from './ui/label';
+import { cn } from '~/lib/utils';
+import { Button } from '~/components/ui/button';
+import { Calendar } from '~/components/ui/calendar';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '~/components/ui/popover';
 import { Input } from './ui/input';
 
-interface DateTimePickerProps {
-  date: Date;
-  setDate: (date: Date) => void;
-}
+const DateTimePicker = ({ dateTimeName }: { dateTimeName: string }) => {
+  const now = new Date();
+  const [date, setDate] = React.useState<Date>();
+  const [time, setTime] = React.useState(now.toISOString().slice(11, 16));
+  const [dateTimeValue, setDateTimeValue] = React.useState<string>();
 
-const DateTimePicker = ({ date, setDate }: DateTimePickerProps) => {
-  const [selectedDateTime, setSelectedDateTime] = React.useState<DateTime>(
-    DateTime.fromJSDate(date)
-  );
+  React.useEffect(() => {
+    // Mettez à jour la valeur du champ datetime-local lorsque la date ou l'heure change
+    if (date) {
+      const dateInTimeZone = utcToZonedTime(date, 'Africa/Dakar');
+      const selectedDateTime = new Date(
+        dateInTimeZone.getFullYear(),
+        dateInTimeZone.getMonth(),
+        dateInTimeZone.getDate(),
+        parseInt(time.split(':')[0], 10),
+        parseInt(time.split(':')[1], 10),
+        0,
+        0
+      );
 
-  const handleSelect: SelectSingleEventHandler = (day, selected) => {
-    const selectedDay = DateTime.fromJSDate(selected);
-    const modifiedDay = selectedDay.set({
-      hour: selectedDateTime.hour,
-      minute: selectedDateTime.minute,
-    });
-
-    setSelectedDateTime(modifiedDay);
-    setDate(modifiedDay.toJSDate());
-  };
-
-  const handleTimeChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-    const { value } = e.target;
-    const hours = Number.parseInt(value.split(':')[0] || '00', 10);
-    const minutes = Number.parseInt(value.split(':')[1] || '00', 10);
-    const modifiedDay = selectedDateTime.set({ hour: hours, minute: minutes });
-
-    setSelectedDateTime(modifiedDay);
-    setDate(modifiedDay.toJSDate());
-  };
-
-  const footer = (
-    <>
-      <div className="px-4 pt-0 pb-4">
-        <Label>Time</Label>
-        <Input
-          type="time"
-          onChange={handleTimeChange}
-          value={selectedDateTime.toFormat('HH:mm')}
-        />
-      </div>
-      {!selectedDateTime && <p>Please pick a day.</p>}
-    </>
-  );
+      const utcDateTime = zonedTimeToUtc(selectedDateTime, 'Africa/Dakar');
+      const formattedDateTime = utcDateTime.toISOString();
+      setDateTimeValue(formattedDateTime);
+    }
+  }, [date, time]);
 
   return (
     <Popover>
-      <PopoverTrigger asChild className="z-10">
+      <PopoverTrigger asChild>
         <Button
           variant={'outline'}
           className={cn(
-            'w-[280px] justify-start text-left font-normal',
+            'w-[280px] justify-start text-left font-normal relative',
             !date && 'text-muted-foreground'
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {date ? (
-            selectedDateTime.toFormat('DDD HH:mm')
-          ) : (
-            <span>Pick a date</span>
-          )}
+          {date ? format(date, 'PPP') : <span>Pick a date and time</span>}
+          <Input
+            className="self-center absolute w-15 right-0"
+            type="time"
+            value={time}
+            onChange={(e) => setTime(e.target.value)}
+          />
+          <input hidden type="datetime-local" name={dateTimeName} />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto flex items-center">
+      <PopoverContent className="w-auto flex p-0">
         <Calendar
           mode="single"
-          selected={selectedDateTime.toJSDate()}
-          onSelect={handleSelect}
+          selected={date}
+          onSelect={setDate}
           initialFocus
         />
-        {footer}
       </PopoverContent>
     </Popover>
   );

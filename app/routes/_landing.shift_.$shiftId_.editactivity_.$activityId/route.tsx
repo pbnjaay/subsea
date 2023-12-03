@@ -9,6 +9,7 @@ import { Database } from 'db_types';
 import { useState } from 'react';
 import { Label } from 'recharts';
 import invariant from 'tiny-invariant';
+import Loader from '~/components/loader';
 import { Button } from '~/components/ui/button';
 import {
   Card,
@@ -169,7 +170,7 @@ const EditWarningPage = () => {
                 disabled={navigation.state === 'submitting'}
                 type="submit"
               >
-                {navigation.state === 'submitting' ? 'soumission' : 'soumettre'}
+                {navigation.state === 'submitting' ? <Loader /> : 'Modifier'}
               </Button>
               <Button
                 type="button"

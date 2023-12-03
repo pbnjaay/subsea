@@ -1,6 +1,12 @@
 import { Database } from 'db_types';
 import CreateServersupabase from 'supabase.server';
 
+const formattedDate = (currentDate: Date) =>
+  currentDate
+    .toISOString()
+    .replace(/\.\d{3}/, '')
+    .replace('Z', '+00:00');
+
 type ApiCall = {
   request: Request;
   response: Response;
@@ -22,7 +28,7 @@ export const getShift = async (id: number, { request, response }: ApiCall) => {
   const supabase = CreateServersupabase({ request, response });
   let { data: shift, error } = await supabase
     .from('shift')
-    .select(`*`)
+    .select(`*, profiles(*)`)
     .eq('id', id)
     .single();
 
@@ -53,11 +59,19 @@ export const getActivities = async (
   return activities;
 };
 
-export const postShift = async ({ request, response }: ApiCall) => {
+export const postShift = async (
+  { request, response }: ApiCall,
+  end: string,
+  start: string
+) => {
   const supabase = CreateServersupabase({ request, response });
+
   const { data: shift, error } = await supabase
     .from('shift')
-    .insert({})
+    .insert({
+      start_at: start,
+      end_at: end,
+    })
     .select();
 
   if (error) throw new Error(error.message);
@@ -150,6 +164,21 @@ export const getActivity = async (
   return activity;
 };
 
+export const getActivityStateCount = async (
+  { request, response }: ApiCall,
+  state: Database['public']['Enums']['state']
+) => {
+  const supabase = CreateServersupabase({ request, response });
+  const { error, count } = await supabase
+    .from('activity')
+    .select('*', { count: 'exact', head: true })
+    .eq('state', state);
+
+  if (error) throw new Error(error.message);
+
+  return count;
+};
+
 export const getCurrentUserProfile = async (
   id: string,
   { request, response }: ApiCall
@@ -217,11 +246,10 @@ export const toogleAlarm = async (
 export const endShift = async (id: number, { request, response }: ApiCall) => {
   const supabase = CreateServersupabase({ request, response });
   const currentDate = new Date();
-  const formattedDate = currentDate
-    .toISOString()
-    .replace(/\.\d{3}/, '')
-    .replace('Z', '+00:00');
-  await supabase.from('shift').update({ end_at: formattedDate }).eq('id', id);
+  await supabase
+    .from('shift')
+    .update({ end_at: formattedDate(currentDate) })
+    .eq('id', id);
 };
 
 export const deleteShift = async (
@@ -279,6 +307,19 @@ export const getSession = async ({ request, response }: ApiCall) => {
   } = await supabase.auth.getSession();
 
   return session;
+};
+
+export const getRecentIssues = async ({ request, response }: ApiCall) => {
+  const supabase = CreateServersupabase({ request, response });
+  const { data, error } = await supabase
+    .from('activity')
+    .select(`*, shift(*, profiles(*))`)
+    .order('created_at', { ascending: false })
+    .limit(5);
+
+  if (error) throw new Error(error.message);
+
+  return data;
 };
 
 export const upDatePassword = async ({ request, response }: ApiCall) => {
