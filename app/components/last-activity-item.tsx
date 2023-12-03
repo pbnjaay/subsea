@@ -1,4 +1,4 @@
-import { formateDate } from '~/services/utils';
+import { formatInstant } from '~/services/utils';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { RecentActivity } from '~/routes/_landing._index/route';
 
@@ -19,7 +19,7 @@ const LastActivityItem = ({ data }: { data: RecentActivity }) => {
         </span>
       </div>
       <div className="ml-auto text-muted-foreground font-medium text-xs md:text-sm">
-        {formateDate(new Date(data.created_at))}
+        {formatInstant(new Date(data.created_at).toISOString())}
       </div>
     </div>
   );

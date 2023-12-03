@@ -6,24 +6,16 @@ import {
 import { useLoaderData } from '@remix-run/react';
 import { Database } from 'db_types';
 import {
-  PhoneIncoming,
-  ScrollText,
-  BugIcon,
   CircleIcon,
   ArrowRight,
   XCircleIcon,
   ParenthesesIcon,
 } from 'lucide-react';
-import { DataKey } from 'recharts/types/util/types';
 import CardStat from '~/components/card-stat';
 import Chart from '~/components/chart';
 import Last5Activities from '~/components/last-activities';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
-import {
-  getActivityStateCount,
-  getRecentIssues,
-  getShifts,
-} from '~/services/api';
+import { getActivityStateCount, getRecentIssues } from '~/services/api';
 import { Profile } from '../_landing/header';
 
 export interface RecentActivity {
@@ -50,8 +42,8 @@ export interface RecentActivity {
 
 export const meta: MetaFunction = () => {
   return [
-    { title: 'New Remix App' },
-    { name: 'description', content: 'Welcome to Remix!' },
+    { title: 'Dashboard' },
+    { name: 'description', content: 'Welcome to subsea app!' },
   ];
 };
 

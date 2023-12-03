@@ -1,5 +1,5 @@
-import { LoaderFunctionArgs, json } from '@remix-run/node';
-import { useFetcher, useLoaderData, useNavigation } from '@remix-run/react';
+import { LoaderFunctionArgs, MetaFunction, json } from '@remix-run/node';
+import { useFetcher, useLoaderData } from '@remix-run/react';
 import {
   deleteShift,
   getShifts,
@@ -12,17 +12,6 @@ import { DataTable } from './data-table';
 import { columns } from './columns';
 import { Button } from '~/components/ui/button';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '~/components/ui/alert-dialog';
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -32,9 +21,15 @@ import {
   DialogTrigger,
 } from '~/components/ui/dialog';
 import { Label } from '~/components/ui/label';
-import DateTimePicker from '~/components/date-picker';
 import { Input } from '~/components/ui/input';
 import Loader from '~/components/loader';
+
+export const meta: MetaFunction = ({ data }) => {
+  return [
+    { title: 'Liste des shifts' },
+    { name: 'description', content: 'Welcome to subsea app!' },
+  ];
+};
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const response = new Response();

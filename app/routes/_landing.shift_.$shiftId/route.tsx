@@ -146,7 +146,7 @@ const ShiftDetailsPage = () => {
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Anuler</AlertDialogCancel>
-                <fetcher.Form method="PATCH">
+                <fetcher.Form method="post">
                   <div className="flex items-center gap-x-2">
                     <AlertDialogAction type="submit" name="_action" value="end">
                       Confirmer

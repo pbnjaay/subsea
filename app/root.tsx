@@ -1,10 +1,4 @@
-import { cssBundleHref } from '@remix-run/css-bundle';
-import {
-  LoaderFunctionArgs,
-  json,
-  type LinksFunction,
-  redirect,
-} from '@remix-run/node';
+import { LoaderFunctionArgs, json, type LinksFunction } from '@remix-run/node';
 import {
   Links,
   LiveReload,
@@ -12,11 +6,12 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  isRouteErrorResponse,
   useLoaderData,
-  useNavigation,
   useRevalidator,
+  useRouteError,
 } from '@remix-run/react';
-import { Session, SupabaseClient } from '@supabase/supabase-js';
+import { SupabaseClient } from '@supabase/supabase-js';
 import { useEffect, useState } from 'react';
 import clsx from 'clsx';
 
@@ -108,6 +103,56 @@ export function App() {
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
+      </body>
+    </html>
+  );
+}
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+
+  // when true, this is what used to go to `CatchBoundary`
+  if (isRouteErrorResponse(error)) {
+    return (
+      <html>
+        <head>
+          <title>Oh no!</title>
+          <Meta />
+          <Links />
+        </head>
+        <body>
+          <div className="w-full h-screen flex flex-col space-y-4 justify-center items-center text-2xl font-semibold texpri">
+            <p>
+              {error.status} | {error.data}
+            </p>
+          </div>
+          <Scripts />
+        </body>
+      </html>
+    );
+  }
+
+  // Don't forget to typecheck with your own logic.
+  // Any value can be thrown, not just errors!
+  let errorMessage = 'Unknown error';
+  if (error instanceof Error) {
+    errorMessage = error.message;
+  }
+
+  return (
+    <html>
+      <head>
+        <title>Oh no!</title>
+        <Meta />
+        <Links />
+      </head>
+      <body>
+        <div>
+          <h1>Uh oh ...</h1>
+          <p>Something went wrong.</p>
+          <pre>{errorMessage}</pre>
+        </div>
+        <Scripts />
       </body>
     </html>
   );

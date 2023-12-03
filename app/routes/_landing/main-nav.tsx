@@ -20,8 +20,11 @@ export function MainNav({
         Dashboard
       </NavLink>
       <NavLink to={'shift'} className={({ isActive }) => active(isActive)}>
-        Shifts
+        My Shifts
       </NavLink>
+      {/* <NavLink to={'activity'} className={({ isActive }) => active(isActive)}>
+        Activités
+      </NavLink> */}
     </nav>
   );
 }

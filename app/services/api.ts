@@ -59,6 +59,22 @@ export const getActivities = async (
   return activities;
 };
 
+export const getAllActivities = async (
+  shiftId: string,
+  { request, response }: ApiCall
+) => {
+  const supabase = CreateServersupabase({ request, response });
+  let { data: activities, error } = await supabase
+    .from('activity')
+    .select(`*, shift(*, profiles(*))`)
+    .eq('shift', shiftId)
+    .order('created_at', { ascending: false });
+
+  if (error) throw new Error(error.message);
+
+  return activities;
+};
+
 export const postShift = async (
   { request, response }: ApiCall,
   end: string,
@@ -108,19 +124,6 @@ export const deleteActivity = async (
     .from('activity')
     .delete()
     .eq('id', activityId);
-
-  if (error) throw new Error(error.message);
-};
-
-export const deleteWarning = async (
-  warningId: number,
-  { request, response }: ApiCall
-) => {
-  const supabase = CreateServersupabase({ request, response });
-  const { error } = await supabase
-    .from('warningpoint')
-    .delete()
-    .eq('id', warningId);
 
   if (error) throw new Error(error.message);
 };

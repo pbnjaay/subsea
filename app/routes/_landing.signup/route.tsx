@@ -23,8 +23,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     request,
     response,
   });
-  if (!profile.is_admin) return redirect('/401');
-
+  if (!profile.is_admin) throw new Response('unauthorized', { status: 401 });
   return json({}, { headers: response.headers });
 };
 export const action = async ({ request, params }: LoaderFunctionArgs) => {
