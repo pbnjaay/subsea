@@ -40,41 +40,41 @@ export const action = async ({ request, params }: LoaderFunctionArgs) => {
   const { _action, id, shifts, activities } = Object.fromEntries(formData);
 
   if (_action === 'end') {
-    console.log('Email render start');
-    const emailHtml = render(
-      <Email
-        activities={JSON.parse(String(activities))}
-        shift={JSON.parse(String(shifts))}
-      />
-    );
-    console.log('Email render finish');
+    try {
+      const [activities, shift] = await Promise.all([
+        getActivities(String(params.shiftId), { request, response }),
+        getShift(Number(params.shiftId), { request, response }),
+      ]);
 
-    const date = new Date(Date.now());
+      const emailHtml = render(<Email activities={activities} shift={shift} />);
 
-    const transporter = mailer.createTransport({
-      host: 'webmail.orange-sonatel.com',
-      port: 587,
-      secure: false,
-      auth: {
-        user: 'S_SupSMS',
-        pass: 'Sonatel2022',
-      },
-      tls: {
-        ciphers: 'TLSv1.2',
-        rejectUnauthorized: false,
-      },
-    });
-    console.log('start sending mail');
-    const info = await transporter.sendMail({
-      from: 'supervision.services@orange-sonatel.com',
-      to: ['papabassirou.ndiaye@orange-sonatel.com'],
-      subject: `Rapport d'activité du ${formateDateWithoutHour(date)}`,
-      html: emailHtml,
-    });
+      const date = new Date(Date.now());
 
-    console.log('sending mail finished');
+      const transporter = mailer.createTransport({
+        host: 'webmail.orange-sonatel.com',
+        port: 587,
+        secure: false,
+        auth: {
+          user: 'S_SupSMS',
+          pass: 'Sonatel2022',
+        },
+        tls: {
+          ciphers: 'TLSv1.2',
+          rejectUnauthorized: false,
+        },
+      });
+      const info = await transporter.sendMail({
+        from: 'supervision.services@orange-sonatel.com',
+        to: ['papabassirou.ndiaye@orange-sonatel.com'],
+        subject: `Rapport d'activité du ${formateDateWithoutHour(date)}`,
+        html: emailHtml,
+      });
 
-    return json({ success: 'ok' }, { headers: response.headers });
+      return json({ success: 'ok' }, { headers: response.headers });
+    } catch (error) {
+      console.error('An error occurred:', error);
+      return json({ error: 'An error occurred' }, { status: 500 });
+    }
   }
 
   if (_action === 'deleteActivity') {
@@ -156,16 +156,6 @@ const ShiftDetailsPage = () => {
                       defaultValue={shift.id}
                       name="shiftId"
                       hidden
-                    />
-                    <input
-                      type="hidden"
-                      name="shifts"
-                      defaultValue={JSON.stringify(shift)}
-                    />
-                    <input
-                      type="hidden"
-                      name="activities"
-                      defaultValue={JSON.stringify(activities)}
                     />
                   </div>
                 </fetcher.Form>

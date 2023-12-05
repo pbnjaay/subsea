@@ -13,6 +13,7 @@ import {
   Hr,
   Button,
 } from '@react-email/components';
+import React from 'react';
 
 import { Activity } from '~/routes/_landing.shift_.$shiftId/action';
 import { Profile } from '~/routes/_landing/header';
@@ -30,11 +31,13 @@ interface Shift {
   profiles: Profile | null;
 }
 
-const Email = (props: {
+const Email = ({
+  activities,
+  shift,
+}: {
   activities: Activity[] | null;
   shift: Shift | null;
 }) => {
-  const { activities, shift } = props;
   return (
     <Html>
       <Head />
@@ -77,54 +80,17 @@ const Email = (props: {
             <Section>
               <Heading className="text-black text-[24px] font-normal p-0 my-[0px] mx-0 mb-4">{`Liste des activités (${activities?.length})`}</Heading>
               {activities?.length ? (
-                <Container>
+                <ul>
                   {activities.map((activity, i) => (
-                    <Row key={i}>
-                      <Row className="rounded-md mb-[20px]">
-                        <Row>
-                          <Column>
-                            <Text className="text-[20px] m-0">
-                              {activity.title}
-                            </Text>
-                          </Column>
-                        </Row>
-                        <Row>
-                          {activity.description ? (
-                            <Column>
-                              <Text className="leading-[24px]">
-                                {activity.description}
-                              </Text>
-                            </Column>
-                          ) : (
-                            <Column>
-                              <Text>Pas de commentaire</Text>
-                            </Column>
-                          )}
-                        </Row>
-                        <Row>
-                          <Column align="right" rowSpan={1}>
-                            <span className="px-3 py-1 rounded bg-[#fa8a3d] text-white font-semibold text-[12px]">
-                              {activity.system}
-                            </span>
-                          </Column>
-                          <Column align="center" rowSpan={2}>
-                            <span className="px-3 py-1 rounded bg-[#fa8a3d] text-white font-semibold text-[12px]">
-                              {activity.type}
-                            </span>
-                          </Column>
-                          <Column align="left" rowSpan={2}>
-                            <span className="px-3 py-1 rounded bg-[#fa8a3d] text-white font-semibold text-[12px]">
-                              {activity.state}
-                            </span>
-                          </Column>
-                        </Row>
-                      </Row>
-                      {i < activities.length - 1 && (
-                        <Hr className="border border-solid border-[#eaeaea] my-[26px] mx-0 w-full" />
-                      )}
-                    </Row>
+                    <li>
+                      <Text>{activity.title}</Text>
+                      <Text>{activity.description}</Text>
+                      <Text>Systeme: {activity.system}</Text>
+                      <Text>Etat: {activity.state}</Text>
+                      <Text>Type: {activity.type}</Text>
+                    </li>
                   ))}
-                </Container>
+                </ul>
               ) : (
                 <Text>Pas d'incidents en cours</Text>
               )}
