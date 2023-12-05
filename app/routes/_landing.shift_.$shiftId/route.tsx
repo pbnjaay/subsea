@@ -19,7 +19,7 @@ import {
 import { MailIcon } from 'lucide-react';
 import Email from '~/components/email';
 import { mailer } from '~/entry.server';
-import { render } from '@react-email/render';
+import { render, renderAsync } from '@react-email/render';
 import { useToast } from '~/components/ui/use-toast';
 import { useEffect } from 'react';
 import { ToastAction, ToastDescription } from '~/components/ui/toast';
@@ -37,44 +37,44 @@ export const action = async ({ request, params }: LoaderFunctionArgs) => {
   invariant(params.shiftId, 'Missing contactId param');
   const response = new Response();
   const formData = await request.formData();
-  const { _action, id } = Object.fromEntries(formData);
+  const { _action, id, shifts, activities } = Object.fromEntries(formData);
 
   if (_action === 'end') {
-    try {
-      const [activities, shift] = await Promise.all([
-        getActivities(String(params.shiftId), { request, response }),
-        getShift(Number(params.shiftId), { request, response }),
-      ]);
+    console.log('Email render start');
+    const emailHtml = render(
+      <Email
+        activities={JSON.parse(String(activities))}
+        shift={JSON.parse(String(shifts))}
+      />
+    );
+    console.log('Email render finish');
 
-      const emailHtml = render(<Email activities={activities} shift={shift} />);
-      const date = new Date(Date.now());
+    const date = new Date(Date.now());
 
-      const transporter = mailer.createTransport({
-        host: 'webmail.orange-sonatel.com',
-        port: 587,
-        secure: false,
-        auth: {
-          user: 'S_SupSMS',
-          pass: 'Sonatel2022',
-        },
-        tls: {
-          ciphers: 'TLSv1.2',
-          rejectUnauthorized: false,
-        },
-      });
+    const transporter = mailer.createTransport({
+      host: 'webmail.orange-sonatel.com',
+      port: 587,
+      secure: false,
+      auth: {
+        user: 'S_SupSMS',
+        pass: 'Sonatel2022',
+      },
+      tls: {
+        ciphers: 'TLSv1.2',
+        rejectUnauthorized: false,
+      },
+    });
+    console.log('start sending mail');
+    const info = await transporter.sendMail({
+      from: 'supervision.services@orange-sonatel.com',
+      to: ['papabassirou.ndiaye@orange-sonatel.com'],
+      subject: `Rapport d'activité du ${formateDateWithoutHour(date)}`,
+      html: emailHtml,
+    });
 
-      const info = await transporter.sendMail({
-        from: 'supervision.services@orange-sonatel.com',
-        to: ['papabassirou.ndiaye@orange-sonatel.com'],
-        subject: `Rapport d'activité du ${formateDateWithoutHour(date)}`,
-        html: emailHtml,
-      });
+    console.log('sending mail finished');
 
-      return json({ success: 'ok' }, { headers: response.headers });
-    } catch (error) {
-      console.error('An error occurred:', error);
-      return json({ error: 'An error occurred' }, { status: 500 });
-    }
+    return json({ success: 'ok' }, { headers: response.headers });
   }
 
   if (_action === 'deleteActivity') {
@@ -156,6 +156,16 @@ const ShiftDetailsPage = () => {
                       defaultValue={shift.id}
                       name="shiftId"
                       hidden
+                    />
+                    <input
+                      type="hidden"
+                      name="shifts"
+                      defaultValue={JSON.stringify(shift)}
+                    />
+                    <input
+                      type="hidden"
+                      name="activities"
+                      defaultValue={JSON.stringify(activities)}
                     />
                   </div>
                 </fetcher.Form>
