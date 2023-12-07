@@ -125,7 +125,7 @@ export default function Index() {
 
   return (
     <div className="container mt-8 flex flex-col space-y-4">
-      <div className="flex flex-col space-y-2 md:flex-row md:space-x-4">
+      <div className="flex flex-col space-y-2 md:space-y-0 md:flex-row md:space-x-4">
         {options.map((option, i) => (
           <CardStat key={i} option={option} />
         ))}
