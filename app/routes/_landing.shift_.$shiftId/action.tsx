@@ -87,8 +87,8 @@ const Action = ({ activities }: { activities: Activity[] | null }) => {
   ];
 
   return (
-    <div className="flex space-x-4">
-      <div className="grid grid-cols-2 gap-4 w-1/3 h-fit">
+    <div className="flex flex-col space-y-4 md:space-y-0 md:space-x-4 md:flex-row">
+      <div className="grid grid-cols-2 gap-2 md:gap-4 md:w-1/3 h-fit">
         {options.map((option, i) => (
           <CardStat option={option} key={i} />
         ))}
@@ -104,7 +104,7 @@ const Action = ({ activities }: { activities: Activity[] | null }) => {
               {activities?.map((activity, i) => (
                 <div
                   key={i}
-                  className={`group flex items-center justify-between p-4 hover:bg-muted rounded-sm cursor-point ${
+                  className={`group relative flex items-center justify-between p-4 hover:bg-muted rounded-sm cursor-point ${
                     Number(fetcher.formData?.get('id')) === activity.id
                       ? 'opacity-50 transition-opdacity'
                       : 'opacity-100 transition-opdacity'
@@ -115,12 +115,18 @@ const Action = ({ activities }: { activities: Activity[] | null }) => {
                       {activity.title}
                     </p>
                     <div className="flex space-x-2">
-                      <Badge className="capitalize">{activity.type}</Badge>
-                      <Badge className="capitalize">{activity.system}</Badge>
-                      <Badge className="capitalize">{activity.state}</Badge>
+                      <Badge variant={'outline'} className="capitalize">
+                        {activity.type}
+                      </Badge>
+                      <Badge variant={'outline'} className="capitalize">
+                        {activity.system}
+                      </Badge>
+                      <Badge variant={'outline'} className="capitalize">
+                        {activity.state}
+                      </Badge>
                     </div>
                   </div>
-                  <div className="group-hover:flex gap-x-2 hidden">
+                  <div className="absolute md:group-hover:flex md:hidden h-fit right-0">
                     <Button
                       size={'icon'}
                       variant={'ghost'}

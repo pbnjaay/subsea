@@ -1,3 +1,4 @@
+import { UploadHandler } from '@remix-run/node';
 import { Database } from 'db_types';
 import CreateServersupabase from 'supabase.server';
 
@@ -145,6 +146,26 @@ export const updateActivity = async (
   return activity;
 };
 
+export const updateProfile = async (
+  id: string,
+  fullName: string,
+  username: string,
+  avatar_url: string,
+  { request, response }: ApiCall
+) => {
+  const supabase = CreateServersupabase({ request, response });
+  const { data: activity, error } = await supabase
+    .from('profiles')
+    .update({ full_name: fullName, username: username, avatar_url: avatar_url })
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) throw new Error(error.message);
+
+  return activity;
+};
+
 export const getActivity = async (
   activityId: number,
   { request, response }: ApiCall
@@ -246,15 +267,6 @@ export const toogleAlarm = async (
   if (error) throw new Error(error.message);
 };
 
-export const endShift = async (id: number, { request, response }: ApiCall) => {
-  const supabase = CreateServersupabase({ request, response });
-  const currentDate = new Date();
-  await supabase
-    .from('shift')
-    .update({ end_at: formattedDate(currentDate) })
-    .eq('id', id);
-};
-
 export const deleteShift = async (
   id: number,
   { request, response }: ApiCall
@@ -346,4 +358,34 @@ export const upDatePassword = async ({ request, response }: ApiCall) => {
     if (error) throw new Error(error.message);
     return error;
   }
+};
+
+export const supabaseUploadHandler =
+  (path: string, { request, response }: ApiCall): UploadHandler =>
+  async ({ data, filename }) => {
+    const chunks = [];
+    for await (const chunk of data) {
+      chunks.push(chunk);
+    }
+    const buffer = Buffer.concat(chunks);
+    // If there's no filename, it's a text field and we can return the value directly
+    if (!filename) {
+      const textDecoder = new TextDecoder();
+      return textDecoder.decode(buffer);
+    }
+    // Otherwise, it's an image and we'll save it to Supabase
+    const supabase = CreateServersupabase({ request, response });
+    const { data: image, error } = await supabase.storage
+      .from('avatars')
+      .upload(path, buffer, { upsert: true });
+    if (error || !image) {
+      throw new Error(error.message);
+    }
+    return image.path;
+  };
+
+export const getImageUrl = (path: string, { request, response }: ApiCall) => {
+  const supabase = CreateServersupabase({ request, response });
+
+  return supabase.storage.from('avatars').getPublicUrl(path).data.publicUrl;
 };

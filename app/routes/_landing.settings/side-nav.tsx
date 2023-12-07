@@ -1,6 +1,6 @@
 import { cn } from '~/lib/utils';
-import { buttonVariants } from './ui/button';
 import { Link, useLocation } from '@remix-run/react';
+import { buttonVariants } from '~/components/ui/button';
 
 interface SidebarNavProps extends React.HTMLAttributes<HTMLElement> {
   items: {

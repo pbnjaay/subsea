@@ -24,12 +24,13 @@ const LandingLayout = () => {
       <main
         className={
           navigation.state === 'loading'
-            ? 'opacity-50 transition-opacity'
-            : 'opacity-1 transition-opacity'
+            ? 'opacity-50 transition-opacity min-h-screen'
+            : 'opacity-1 transition-opacity min-h-screen'
         }
       >
         <Outlet />
       </main>
+      <Footer />
     </>
   );
 };

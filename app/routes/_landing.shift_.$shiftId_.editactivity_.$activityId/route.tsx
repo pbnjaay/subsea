@@ -77,8 +77,8 @@ const EditWarningPage = () => {
   });
 
   return (
-    <div className="container mt-8">
-      <Card className="w-1/2">
+    <div className="container mt-8 ">
+      <Card className="md:w-1/2 w-full">
         <CardHeader>
           <CardTitle>Modifier une activité</CardTitle>
           <CardDescription>

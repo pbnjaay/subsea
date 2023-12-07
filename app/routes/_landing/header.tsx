@@ -21,7 +21,7 @@ const Header = ({ profile }: { profile: Profile | null }) => {
         <div className="flex gap-x-12">
           <div className="flex items-center gap-x-2">
             <LinkBreak2Icon />
-            <Link className="font-semibold text-lg" to={'/'}>
+            <Link className="font-semibold text-lg tracking-tighter" to={'/'}>
               SubSea
             </Link>
           </div>

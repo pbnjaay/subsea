@@ -24,7 +24,7 @@ const FormActivity = () => {
   const navigate = useNavigate();
 
   return (
-    <Card className="w-1/2">
+    <Card className="md:w-1/2 w-full">
       <CardHeader>
         <CardTitle>Ajouter une nouvelle activité</CardTitle>
         <CardDescription>

@@ -82,9 +82,9 @@ const ShiftPage = () => {
   const { shifts } = useLoaderData<typeof loader>();
   const fetcher = useFetcher();
   return (
-    <div className={`container flex flex-col mt-8 gap-y-4`}>
+    <div className="container flex flex-col mt-8 gap-y-4">
       <div className="flex justify-between">
-        <h1 className="text-2xl font-semibold">Shifts</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Shifts</h1>
         <Dialog>
           <DialogTrigger asChild>
             <Button size={'sm'}>Nouveau</Button>

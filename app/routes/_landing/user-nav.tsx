@@ -1,6 +1,6 @@
 import { Link, useNavigate, useOutletContext } from '@remix-run/react';
 import { Session } from '@supabase/supabase-js';
-import { User, LogOut, UserPlusIcon } from 'lucide-react';
+import { User, LogOut, UserPlusIcon, Settings } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
 import {
   DropdownMenu,
@@ -38,19 +38,15 @@ export const UserNav = ({ profile }: { profile: Profile | null }) => {
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-35" align="start">
-        <DropdownMenuLabel>My Account</DropdownMenuLabel>
+        <DropdownMenuLabel className="capitalize">
+          {profile?.full_name}
+        </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem>
-            <User className="mr-2 h-4 w-4" />
-            <Link to="/me">{profile ? profile.username : 'Profile'}</Link>
+            <Settings className="mr-2 h-4 w-4" />
+            <Link to="/settings">Réglages</Link>
           </DropdownMenuItem>
-          {profile?.is_admin && (
-            <DropdownMenuItem>
-              <UserPlusIcon className="mr-2 h-4 w-4" />
-              <Link to={'/signup'}>Nouveau utilisateur</Link>
-            </DropdownMenuItem>
-          )}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleLogout}>

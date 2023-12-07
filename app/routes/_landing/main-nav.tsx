@@ -5,15 +5,14 @@ export function MainNav({
   className,
   ...props
 }: React.HTMLAttributes<HTMLElement>) {
-  const navLink = 'text-sm font-medium transition-colors hover:text-primary';
+  const navLink =
+    'transition-colors hover:text-foreground/80 text-foreground/60 text-sm';
   const active = (isActive: boolean) =>
-    isActive
-      ? `${navLink} text-primary font-semibold `
-      : `${navLink} text-foreground/60`;
+    isActive ? `${navLink} text-primary` : `${navLink} text-foreground/60`;
 
   return (
     <nav
-      className={cn('flex items-center space-x-4 lg:space-x-6', className)}
+      className={cn('flex items-center space-x-4 lg:space-x-6 tex', className)}
       {...props}
     >
       <NavLink to={''} className={({ isActive }) => active(isActive)}>
@@ -22,9 +21,6 @@ export function MainNav({
       <NavLink to={'shift'} className={({ isActive }) => active(isActive)}>
         My Shifts
       </NavLink>
-      {/* <NavLink to={'activity'} className={({ isActive }) => active(isActive)}>
-        Activités
-      </NavLink> */}
     </nav>
   );
 }

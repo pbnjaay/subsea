@@ -111,7 +111,7 @@ const ShiftDetailsPage = () => {
   return (
     <div className="container pt-8">
       <div className="flex justify-between mb-4">
-        <h1 className="text-2xl font-bold">
+        <h1 className="text-xl md:text-2xl font-bold">
           {formateDate(new Date(shift.created_at))}
         </h1>
         <div className="flex gap-x-2">
