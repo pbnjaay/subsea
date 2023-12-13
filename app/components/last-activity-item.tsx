@@ -13,7 +13,9 @@ const LastActivityItem = ({ data }: { data: RecentActivity }) => {
         <AvatarFallback>Name</AvatarFallback>
       </Avatar>
       <div className="ml-4 space-y-2">
-        <p className="text-sm font-semibold leading-none">{data.title}</p>
+        <p className="text-sm font-semibold leading-none capitalize">
+          {data.system}
+        </p>
         <span className="text-xs capitalize text-muted-foreground">
           {data.shift?.profiles?.full_name}
         </span>

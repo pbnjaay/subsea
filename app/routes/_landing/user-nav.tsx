@@ -1,6 +1,12 @@
 import { Link, useNavigate, useOutletContext } from '@remix-run/react';
 import { Session } from '@supabase/supabase-js';
-import { User, LogOut, UserPlusIcon, Settings } from 'lucide-react';
+import {
+  User,
+  LogOut,
+  UserPlusIcon,
+  Settings,
+  ArchiveIcon,
+} from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
 import {
   DropdownMenu,
@@ -25,7 +31,7 @@ export const UserNav = ({ profile }: { profile: Profile | null }) => {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="hidden md:block" asChild>
+      <DropdownMenuTrigger className="" asChild>
         <Avatar className="w-7 h-7 overflow-hidden">
           <AvatarImage
             src={
@@ -41,6 +47,10 @@ export const UserNav = ({ profile }: { profile: Profile | null }) => {
         <DropdownMenuLabel className="capitalize">
           {profile?.full_name}
         </DropdownMenuLabel>
+        <DropdownMenuItem>
+          <ArchiveIcon className="mr-2 h-4 w-4" />
+          <Link to="/shift">My sfhit</Link>
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem>

@@ -97,7 +97,7 @@ const Action = ({ activities }: { activities: Activity[] | null }) => {
         <Card className="w-full">
           <CardHeader>
             <CardTitle className="text-lg">Activités</CardTitle>
-            <CardDescription>Liste des activités</CardDescription>
+            <CardDescription>Rapport d'activités</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col space-y-2">
@@ -111,15 +111,12 @@ const Action = ({ activities }: { activities: Activity[] | null }) => {
                   }`}
                 >
                   <div className="flex flex-col space-y-2">
-                    <p className="text-sm font-semibold leading-none">
-                      {activity.title}
+                    <p className="text-sm font-semibold leading-none capitalize">
+                      {activity.system}
                     </p>
                     <div className="flex space-x-2">
                       <Badge variant={'outline'} className="capitalize">
                         {activity.type}
-                      </Badge>
-                      <Badge variant={'outline'} className="capitalize">
-                        {activity.system}
                       </Badge>
                       <Badge variant={'outline'} className="capitalize">
                         {activity.state}

@@ -278,12 +278,12 @@ export const deleteShift = async (
 export const login = async ({ request, response }: ApiCall) => {
   const supabase = CreateServersupabase({ request, response });
   const { email, password } = Object.fromEntries(await request.formData());
-  const { error } = await supabase.auth.signInWithPassword({
+  const { error, data } = await supabase.auth.signInWithPassword({
     email: String(email),
     password: String(password),
   });
 
-  return error;
+  return { error, data };
 };
 
 export const signUp = async ({ request, response }: ApiCall) => {

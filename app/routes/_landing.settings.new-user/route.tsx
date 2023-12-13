@@ -1,5 +1,13 @@
 import { LoaderFunctionArgs, json, redirect } from '@remix-run/node';
-import { Form, useNavigation } from '@remix-run/react';
+import {
+  Form,
+  Links,
+  Meta,
+  Scripts,
+  isRouteErrorResponse,
+  useNavigation,
+  useRouteError,
+} from '@remix-run/react';
 import { Loader } from 'lucide-react';
 import { Button } from '~/components/ui/button';
 
@@ -75,3 +83,53 @@ const NewUserForm = () => {
 };
 
 export default NewUserForm;
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+
+  // when true, this is what used to go to `CatchBoundary`
+  if (isRouteErrorResponse(error)) {
+    return (
+      <html>
+        <head>
+          <title>Oh no!</title>
+          <Meta />
+          <Links />
+        </head>
+        <body>
+          <div className="w-full h-screen flex flex-col space-y-4 justify-center items-center text-2xl font-semibold texpri">
+            <p>
+              {error.status} | {error.data}
+            </p>
+          </div>
+          <Scripts />
+        </body>
+      </html>
+    );
+  }
+
+  // Don't forget to typecheck with your own logic.
+  // Any value can be thrown, not just errors!
+  let errorMessage = 'Unknown error';
+  if (error instanceof Error) {
+    errorMessage = error.message;
+  }
+
+  return (
+    <html>
+      <head>
+        <title>Oh no!</title>
+        <Meta />
+        <Links />
+      </head>
+      <body>
+        <div>
+          <h1>Uh oh ...</h1>
+          <p>Something went wrong.</p>
+          <pre>{errorMessage}</pre>
+        </div>
+        <Scripts />
+      </body>
+    </html>
+  );
+}

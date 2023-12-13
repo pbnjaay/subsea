@@ -17,7 +17,8 @@ import { login } from '~/services/api';
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const response = new Response();
-  const error = await login({ request, response });
+  const { error, data } = await login({ request, response });
+
   if (!error) return redirect('/', { headers: response.headers });
   return json({ error: true }, { headers: response.headers });
 };

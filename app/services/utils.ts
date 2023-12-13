@@ -1,7 +1,7 @@
 export const formateDate = (date: Date) =>
   date.toLocaleDateString('fr-FR', {
     day: 'numeric',
-    month: 'long',
+    month: 'short',
     year: 'numeric',
     hour: 'numeric',
     minute: '2-digit',
@@ -10,7 +10,7 @@ export const formateDate = (date: Date) =>
 export const formateDateWithoutHour = (date: Date) =>
   date.toLocaleDateString('fr-FR', {
     day: 'numeric',
-    month: 'long',
+    month: 'short',
     year: 'numeric',
   });
 
@@ -20,7 +20,7 @@ export function formatInstant(created_at: string) {
   const diff = (now.getTime() - date.getTime()) / 1000;
 
   if (diff < 60) {
-    return 'just now';
+    return 'maintenant';
   } else if (diff < 3600) {
     const minutes = Math.floor(diff / 60);
     return `${minutes}m`;
@@ -29,7 +29,7 @@ export function formatInstant(created_at: string) {
     return `${hours}h`;
   } else {
     const day = date.getDate();
-    const month = date.toLocaleString('en-Us', { month: 'short' });
+    const month = date.toLocaleString('fr-FR', { month: 'short' });
     const year = date.getFullYear();
     return `${month} ${day}, ${year}`;
   }

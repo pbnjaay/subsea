@@ -33,10 +33,10 @@ const FormActivity = () => {
       </CardHeader>
       <CardContent>
         <Form className="space-y-4" method="post">
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
             <Label>Titre</Label>
             <Input name="title" type="text" required />
-          </div>
+          </div> */}
           <div className="flex space-x-4">
             <Select name="system" required>
               <SelectTrigger className="w-[180px]">

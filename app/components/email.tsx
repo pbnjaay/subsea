@@ -59,23 +59,17 @@ const Email = ({
             </Text>
             <Text>
               <span className="font-semibold">Verification des alarmes:</span>{' '}
-              <span>
-                {shift?.is_alarm_checked ? 'Executées' : 'Non Executées'}
-              </span>
+              <span>{shift?.is_alarm_checked ? '✅' : '⛔'}</span>
             </Text>
             <Text>
               <span className="font-semibold">Basique quotidienne:</span>{' '}
-              <span>
-                {shift?.is_basic_done ? 'Executées' : 'Non Executées'}
-              </span>
+              <span>{shift?.is_basic_done ? '✅' : '⛔'}</span>
             </Text>
             <Text>
               <span className="font-semibold">
                 Ronde salle technique en fin de vacation:
               </span>{' '}
-              <span>
-                {shift?.is_room_checked ? 'Executées' : 'Non Executées'}
-              </span>
+              <span>{shift?.is_room_checked ? '✅' : '⛔'}</span>
             </Text>
             <Section>
               <Heading className="text-black text-[24px] font-normal p-0 my-[0px] mx-0 mb-4">{`Liste des activités (${activities?.length})`}</Heading>
@@ -83,11 +77,12 @@ const Email = ({
                 <ul>
                   {activities.map((activity, i) => (
                     <li>
-                      <Text>{activity.title}</Text>
-                      <Text>{activity.description}</Text>
                       <Text>Systeme: {activity.system}</Text>
                       <Text>Etat: {activity.state}</Text>
                       <Text>Type: {activity.type}</Text>
+                      {activity.description && (
+                        <Text>Description {activity.description}</Text>
+                      )}
                     </li>
                   ))}
                 </ul>

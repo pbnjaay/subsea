@@ -112,7 +112,7 @@ const ShiftDetailsPage = () => {
     <div className="container pt-8">
       <div className="flex justify-between mb-4">
         <h1 className="text-xl md:text-2xl font-bold">
-          {formateDate(new Date(shift.created_at))}
+          {formateDate(new Date(shift?.start_at))}
         </h1>
         <div className="flex gap-x-2">
           <AlertDialog>
@@ -141,7 +141,7 @@ const ShiftDetailsPage = () => {
                   Êtes-vous sûr d'avoir terminer votre vacation ?
                 </AlertDialogTitle>
                 <AlertDialogDescription>
-                  Appuyez sur Annuler si vous avez déjà un shift en cours.
+                  Appuyez sur Annuler pour interrompre l'action.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>

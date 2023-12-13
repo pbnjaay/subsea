@@ -87,7 +87,7 @@ const EditWarningPage = () => {
         </CardHeader>
         <CardContent>
           <Form className="space-y-4" method="post">
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <Label>Title</Label>
               <Input
                 name="title"
@@ -98,7 +98,7 @@ const EditWarningPage = () => {
                   setActivity({ ...activity, title: ev.target.value })
                 }
               />
-            </div>
+            </div> */}
             <div className="flex space-x-4">
               <Select
                 name="system"

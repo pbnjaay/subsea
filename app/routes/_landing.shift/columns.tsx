@@ -1,31 +1,15 @@
 import { CheckCircledIcon, CrossCircledIcon } from '@radix-ui/react-icons';
 
-import { Link, useFetcher, useOutletContext } from '@remix-run/react';
+import { Link, useFetcher } from '@remix-run/react';
 import { ColumnDef } from '@tanstack/react-table';
 import {
-  CircleDashed,
   DoorOpenIcon,
-  EyeIcon,
   FolderIcon,
-  InfoIcon,
   MoreHorizontal,
   PlusCircleIcon,
-  SendIcon,
   SirenIcon,
   TrashIcon,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '~/components/ui/alert-dialog';
-import { Badge } from '~/components/ui/badge';
 
 import { Button } from '~/components/ui/button';
 import {
@@ -35,7 +19,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
-import { SupabaseOutletContext } from '~/root';
 import { formateDate } from '~/services/utils';
 import { Profile } from '../_landing/header';
 
@@ -62,9 +45,11 @@ export const columns: ColumnDef<Shifts>[] = [
     cell: ({ row }) => {
       const supervisor = row.getValue<Profile>('profiles');
       return (
-        <div className="text-justify font-medium capitalize">
-          {supervisor ? supervisor.full_name : 'no name'}
-        </div>
+        <Link to={`/shift/${row.original.id}`}>
+          <div className="text-justify font-medium capitalize">
+            {supervisor ? supervisor.full_name : 'no name'}
+          </div>
+        </Link>
       );
     },
   },
@@ -231,6 +216,14 @@ export const columns: ColumnDef<Shifts>[] = [
               <fetcher.Form
                 method="PATCH"
                 className="flex items-center gap-x-2"
+                onSubmit={(event) => {
+                  const response = confirm(
+                    'Veuillez confirmer que vous souhaitez supprimer cet enregistrement.'
+                  );
+                  if (!response) {
+                    event.preventDefault();
+                  }
+                }}
               >
                 <TrashIcon className="w-3 h-3" />
                 <button type="submit" name="_action" value="destroy">

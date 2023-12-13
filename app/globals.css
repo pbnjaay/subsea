@@ -62,15 +62,11 @@
     @apply bg-background text-foreground;
   }
 
+}
+
+@media (max-width: 640px) {
   .container {
     padding-left: 1rem;
     padding-right: 1rem;
-  }
-
-  @media screen and (min-width: 768px) {
-    .container {
-      padding-left: 3rem;
-      padding-right: 3rem;
-    } 
   }
 }
