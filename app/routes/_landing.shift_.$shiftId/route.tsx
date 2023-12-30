@@ -65,7 +65,15 @@ export const action = async ({ request, params }: LoaderFunctionArgs) => {
       });
       const info = await transporter.sendMail({
         from: 'supervision.services@orange-sonatel.com',
-        to: ['papabassirou.ndiaye@orange-sonatel.com'],
+        to: [
+          'papabassirou.ndiaye@orange-sonatel.com',
+          'NOC-RAFIA@orange-sonatel.com',
+          'supervisioncsm@orange-sonatel.com',
+          'tapha.sow@orange-sonatel.com',
+          'Ace_snoc1@orange-sonatel.com',
+          'aboubacardiop@orange-sonatel.com',
+          'abdoulayendiaye@orange-sonatel.com',
+        ],
         subject: `Rapport d'activité du ${formateDateWithoutHour(date)}`,
         html: emailHtml,
       });
