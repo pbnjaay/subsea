@@ -17,7 +17,6 @@ import {
 import { useFetcher } from 'react-router-dom';
 import { Button } from '~/components/ui/button';
 import { useNavigate } from '@remix-run/react';
-import { Database } from 'db_types';
 import { Badge } from '~/components/ui/badge';
 import {
   AlertDialog,
@@ -30,26 +29,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '~/components/ui/alert-dialog';
-import { CheckCircledIcon } from '@radix-ui/react-icons';
-import { useState } from 'react';
 import CardStat from '~/components/card-stat';
+import { $Enums, Activity } from '@prisma/client';
 
-export interface Activity {
-  created_at: string;
-  title: string | null;
-  description: string | null;
-  id: number;
-  shift: number | null;
-  system: Database['public']['Enums']['system'];
-  type: Database['public']['Enums']['type'];
-  state: Database['public']['Enums']['state'];
-}
-
-const Action = ({ activities }: { activities: Activity[] | null }) => {
+const Action = ({ activities }: { activities: Activity[] | undefined }) => {
   const fetcher = useFetcher();
   const navigate = useNavigate();
 
-  const getActivityTypeCount = (type: Database['public']['Enums']['type']) => {
+  const getActivityTypeCount = (type: $Enums.Type) => {
     let count = 0;
     activities?.map((activity) => {
       if (activity.type === type) count += 1;
@@ -61,27 +48,27 @@ const Action = ({ activities }: { activities: Activity[] | null }) => {
   const options = [
     {
       label: 'Call ID',
-      count: getActivityTypeCount('call Id'),
+      count: getActivityTypeCount('CALL_ID'),
       icon: <PhoneIncoming className="w-4 h-4" />,
     },
     {
       label: 'Plainte',
-      count: getActivityTypeCount('plainte'),
+      count: getActivityTypeCount('PLAINTE'),
       icon: <ScrollText className="w-4 h-4" />,
     },
     {
       label: 'Incident',
-      count: getActivityTypeCount('incident'),
+      count: getActivityTypeCount('INCIDENT'),
       icon: <BugIcon className="w-4 h-4" />,
     },
     {
       label: 'Signal',
-      count: getActivityTypeCount('signalisation'),
+      count: getActivityTypeCount('SIGNALISATION'),
       icon: <ActivityIcon className="w-4 h-4" />,
     },
     {
       label: 'Autre',
-      count: getActivityTypeCount('autre'),
+      count: getActivityTypeCount('OTHER'),
       icon: <CircleEllipsis className="w-4 h-4" />,
     },
   ];
@@ -164,7 +151,7 @@ const Action = ({ activities }: { activities: Activity[] | null }) => {
                               type="number"
                               hidden
                               defaultValue={activity.id}
-                              name="id"
+                              name="activityId"
                             />
                           </fetcher.Form>
                         </AlertDialogFooter>

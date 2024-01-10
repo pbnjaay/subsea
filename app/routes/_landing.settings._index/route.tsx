@@ -1,82 +1,62 @@
-import { Form, useLoaderData, useNavigation } from '@remix-run/react';
+import { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node';
+import {
+  Form,
+  json,
+  redirect,
+  useLoaderData,
+  useNavigation,
+} from '@remix-run/react';
 import Loader from '~/components/loader';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
 import { Separator } from '~/components/ui/separator';
-import {
-  ActionFunctionArgs,
-  LoaderFunctionArgs,
-  json,
-  unstable_parseMultipartFormData,
-} from '@remix-run/node';
-import {
-  getCurrentUserProfile,
-  getImageUrl,
-  getSession,
-  supabaseUploadHandler,
-  updateProfile,
-} from '~/services/api';
-import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
-import { useRef } from 'react';
-import { Download } from 'lucide-react';
+import { getSession } from '~/sessions';
+import prisma from 'client.server';
+
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const formData = await request.formData();
+  const { fullName, username } = Object.fromEntries(formData);
+  const session = await getSession(request.headers.get('Cookie'));
+
+  const user = await prisma.user.update({
+    where: {
+      id: session.data.user?.id,
+    },
+    data: {
+      username: String(username),
+      fullName: String(fullName),
+    },
+  });
+
+  if (!user) return;
+
+  return json({});
+};
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const response = new Response();
-  const session = await getSession({ request, response });
-  const profile = await getCurrentUserProfile(session.user.id, {
-    request,
-    response,
+  const session = await getSession(request.headers.get('Cookie'));
+  if (!session) return redirect('/login');
+
+  const profile = await prisma?.profile.findFirst({
+    where: {
+      userId: {
+        equals: session.data.user?.id,
+      },
+    },
   });
 
-  const imageUrl = getImageUrl(`${profile.username}_profile.jpg`, {
-    request,
-    response,
-  });
-  return json({ imageUrl, profile }, { headers: response.headers });
-};
-
-export const action = async ({ request }: ActionFunctionArgs) => {
-  const response = new Response();
-  const session = await getSession({ request, response });
-  const profile = await getCurrentUserProfile(session.user.id, {
-    request,
-    response,
-  });
-
-  const formData = await unstable_parseMultipartFormData(
-    request,
-    supabaseUploadHandler(`${profile.username}_profile.jpg`, {
-      request,
-      response,
-    })
+  return json(
+    { profile: profile, user: session.data.user },
+    { headers: response.headers }
   );
-
-  const imageUrl = getImageUrl(`${profile.username}_profile.jpg`, {
-    request,
-    response,
-  });
-
-  formData.set('avatar_url', imageUrl);
-  const { fullName, username, avatar_url } = Object.fromEntries(formData);
-
-  if (session) {
-    updateProfile(
-      session?.user.id,
-      String(fullName),
-      String(username),
-      String(avatar_url),
-      { request, response }
-    );
-  }
-
-  return json({}, { headers: response.headers });
 };
 
 const ProfileForm = () => {
   const navigation = useNavigation();
-  const inputRef = useRef<HTMLInputElement>(null);
-  const { imageUrl, profile } = useLoaderData<typeof loader>();
+  const { user } = useLoaderData<typeof loader>();
+
   return (
     <div className="space-y-6">
       <div>
@@ -94,7 +74,7 @@ const ProfileForm = () => {
           <Input
             name="fullName"
             type="text"
-            defaultValue={profile.full_name || ''}
+            defaultValue={user?.fullName}
             required
           />
         </div>
@@ -106,24 +86,8 @@ const ProfileForm = () => {
             name="username"
             type="text"
             required
-            defaultValue={profile.username || ''}
+            defaultValue={user?.username}
           />
-        </div>
-        <div className="flex">
-          <input hidden name="avatar_url" ref={inputRef} type="file" />
-          <Button
-            className="flex items-center space-x-2"
-            variant={'outline'}
-            onClick={() => inputRef.current?.click()}
-            type="button"
-          >
-            <Download className="w-4 h-4" />
-            <span>Téléverser une image</span>
-          </Button>
-          <Avatar className="ml-4">
-            <AvatarImage src={imageUrl} />
-            <AvatarFallback>CN</AvatarFallback>
-          </Avatar>
         </div>
         <div className="flex space-x-4">
           <Button type="submit">

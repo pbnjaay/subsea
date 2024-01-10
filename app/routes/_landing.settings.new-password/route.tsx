@@ -1,22 +1,73 @@
-import { ActionFunctionArgs, json } from '@remix-run/node';
+import { ActionFunctionArgs, json, redirect } from '@remix-run/node';
 import { Form, useActionData, useNavigation } from '@remix-run/react';
 import { Loader } from 'lucide-react';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
 import { Separator } from '~/components/ui/separator';
-import { upDatePassword } from '~/services/api';
+import { destroySession, getSession } from '~/sessions';
+import prisma from 'client.server';
+import { generateSalt, hashPassword } from '~/services/utils';
+import { useToast } from '~/components/ui/use-toast';
+import { useEffect } from 'react';
 
-export const action = ({ request }: ActionFunctionArgs) => {
-  const response = new Response();
-  const error = upDatePassword({ request, response });
-  if (!error) return json({ error: false }, { headers: response.headers });
-  return json({ error: true }, { headers: response.headers });
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const session = await getSession(request.headers.get('Cookie'));
+  const formData = await request.formData();
+  let passwordMatch = false;
+  const { password, newPassword } = Object.fromEntries(formData);
+  const user = await prisma.user.findFirst({
+    where: { email: session.data.user?.email },
+  });
+
+  if (!user) {
+    throw new Response('Unauthorized', { status: 401 });
+  }
+
+  passwordMatch = user.password === hashPassword(String(password), user.salt);
+
+  if (!passwordMatch)
+    return json({
+      data: {
+        error: { message: 'Votre ancien mot de passe ne correspond pas' },
+      },
+    });
+
+  const salt = generateSalt();
+
+  const newUser = await prisma.user.update({
+    where: {
+      email: user.email,
+    },
+    data: {
+      password: hashPassword(String(newPassword), salt),
+      salt: salt,
+    },
+  });
+
+  return redirect('/login', {
+    headers: {
+      'Set-Cookie': await destroySession(session),
+    },
+  });
 };
 
 const ChangePasswordForm = () => {
-  const actionData = useActionData<typeof action>();
+  const data = useActionData<typeof action>();
   const navigation = useNavigation();
+
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (data?.data.error) {
+      toast({
+        variant: 'destructive',
+        title: 'Oh, oh ! Quelque chose a mal tourné.',
+        description: data.data.error.message,
+      });
+    }
+  }, [data?.data]);
+
   return (
     <div className="space-y-6">
       <div>
@@ -30,12 +81,6 @@ const ChangePasswordForm = () => {
       <Separator />
       <Form className="space-y-4" method="post">
         <div className="flex flex-col gap-y-2">
-          <Label className="font-medium" htmlFor="email">
-            Email
-          </Label>
-          <Input name="email" />
-        </div>
-        <div className="flex flex-col gap-y-2">
           <Label className="font-medium" htmlFor="password">
             Ancien Mot de passe
           </Label>
@@ -45,7 +90,7 @@ const ChangePasswordForm = () => {
           <Label className="font-medium" htmlFor="newPassword">
             Nouveau mot de passe
           </Label>
-          <Input name="newPassword" type="password" />
+          <Input name="newPassword" type="password" minLength={6} />
         </div>
         <Button type="submit">
           {navigation.state === 'submitting' ? <Loader /> : 'Changer'}

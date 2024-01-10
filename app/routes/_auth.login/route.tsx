@@ -1,5 +1,6 @@
-import { ActionFunctionArgs, redirect, json } from '@remix-run/node';
+import { ActionFunctionArgs, json, redirect } from '@remix-run/node';
 import { Form, useActionData, useNavigation } from '@remix-run/react';
+import prisma from 'client.server';
 import { useEffect } from 'react';
 import Loader from '~/components/loader';
 import { Button } from '~/components/ui/button';
@@ -13,14 +14,48 @@ import {
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
 import { useToast } from '~/components/ui/use-toast';
-import { login } from '~/services/api';
+import { hashPassword } from '~/services/utils';
+import { commitSession, getSession } from '~/sessions';
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const response = new Response();
-  const { error, data } = await login({ request, response });
+  let passWordMatch = false;
+  const formData = await request.formData();
+  const { password, username } = Object.fromEntries(formData);
 
-  if (!error) return redirect('/', { headers: response.headers });
-  return json({ error: true }, { headers: response.headers });
+  const user = await prisma.user.findFirst({
+    where: {
+      username: {
+        equals: String(username),
+      },
+    },
+  });
+
+  if (!user) {
+    return json(
+      { error: { message: 'Votre login ou mot de passe ne correspond pas' } },
+      { headers: response.headers }
+    );
+  }
+
+  const hashedPassword = hashPassword(String(password), user.salt);
+  passWordMatch = hashedPassword === user.password;
+
+  if (!passWordMatch) {
+    return json(
+      { error: { message: 'Votre login ou mot de passe ne correspond pas' } },
+      { headers: response.headers }
+    );
+  }
+
+  const session = await getSession(request.headers.get('Cookie'));
+
+  session.set('user', user);
+  return redirect('/', {
+    headers: {
+      'Set-Cookie': await commitSession(session),
+    },
+  });
 };
 
 const LoginPage = () => {
@@ -33,7 +68,7 @@ const LoginPage = () => {
       toast({
         variant: 'destructive',
         title: 'Oh, oh ! Quelque chose a mal tourné.',
-        description: 'Votre login ou mot de passe ne correspond pas',
+        description: actionData.error.message,
       });
     }
   }, [actionData]);
@@ -50,10 +85,10 @@ const LoginPage = () => {
         <CardContent>
           <Form className="space-y-4" method="post">
             <div className="flex flex-col gap-y-2">
-              <Label className="font-medium" htmlFor="email">
-                Email
+              <Label className="font-medium" htmlFor="username">
+                Nom d'utilisateur
               </Label>
-              <Input name="email" />
+              <Input name="username" />
             </div>
             <div className="flex flex-col gap-y-2">
               <Label className="font-medium" htmlFor="password">

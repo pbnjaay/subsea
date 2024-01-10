@@ -21,17 +21,18 @@ import {
 } from '~/components/ui/dropdown-menu';
 import { formateDate } from '~/services/utils';
 import { Profile } from '../_landing/header';
+import { User } from '@prisma/client';
 
 export type Shifts = {
   id: number;
-  created_at: string;
-  supervisor: string | null;
-  profiles: Profile | null;
-  end_at: string | null;
-  start_at: string | null;
-  is_basic_done: boolean | null;
-  is_room_checked: boolean | null;
-  is_alarm_checked: boolean | null;
+  startAt: Date;
+  endAt: Date;
+  isBasicDone: boolean;
+  isAlarmChecked: boolean;
+  isRoomChecked: boolean;
+  createdAt: Date;
+  userId: number;
+  supervisor: User;
 };
 
 export const columns: ColumnDef<Shifts>[] = [
@@ -40,52 +41,53 @@ export const columns: ColumnDef<Shifts>[] = [
     header: () => <div className="text-justify">Id</div>,
   },
   {
-    accessorKey: 'profiles',
+    accessorKey: 'supervisor',
     header: () => <div className="text-justify">Superviseur</div>,
     cell: ({ row }) => {
-      const supervisor = row.getValue<Profile>('profiles');
+      const supervisor = row.getValue<User>('supervisor');
       return (
-        <Link to={`/shift/${row.original.id}`}>
-          <div className="text-justify font-medium capitalize">
-            {supervisor ? supervisor.full_name : 'no name'}
-          </div>
+        <Link
+          className="text-justify font-medium capitalize"
+          to={`/shift/${row.original.id}`}
+        >
+          {supervisor ? supervisor.fullName : 'no name'}
         </Link>
       );
     },
   },
   {
-    accessorKey: 'start_at',
+    accessorKey: 'startAt',
     header: () => <div className="text-justify">Debut</div>,
     cell: ({ row }) => {
-      const created_at = new Date(row.getValue('start_at'));
-      const formatted = formateDate(created_at);
+      const createdAt = new Date(row.getValue('startAt'));
+      const formatted = formateDate(createdAt);
 
-      return <div className="text-justify font-medium">{formatted}</div>;
+      return <p className="text-justify font-medium">{formatted}</p>;
     },
   },
   {
-    accessorKey: 'end_at',
+    accessorKey: 'endAt',
     header: () => <div className="text-justify">Fin</div>,
     cell: ({ row }) => {
-      const end_date = row.getValue('end_at')
-        ? new Date(row.getValue('end_at'))
+      const endAte = row.getValue('endAt')
+        ? new Date(row.getValue('endAt'))
         : null;
 
-      return end_date ? (
-        <div className="text-justify font-medium">{formateDate(end_date)}</div>
+      return endAte ? (
+        <div className="text-justify font-medium">{formateDate(endAte)}</div>
       ) : (
         <span className="inline-flex justify-center w-2 h-2 bg-green-600 rounded-full"></span>
       );
     },
   },
   {
-    accessorKey: 'is_basic_done',
+    accessorKey: 'isBasicDone',
     header: () => <div className="text-justify">Basique</div>,
     cell: ({ row }) => {
-      const is_basic_done = Boolean(row.getValue('is_basic_done'));
+      const isBasicDone = Boolean(row.getValue('isBasicDone'));
       return (
         <div className="text-justify font-medium">
-          {is_basic_done ? (
+          {isBasicDone ? (
             <CheckCircledIcon className="text-primary" />
           ) : (
             <CrossCircledIcon className="text-muted-foreground" />
@@ -95,13 +97,13 @@ export const columns: ColumnDef<Shifts>[] = [
     },
   },
   {
-    accessorKey: 'is_alarm_checked',
+    accessorKey: 'isAlarmChecked',
     header: () => <div className="text-justify">Alarme</div>,
     cell: ({ row }) => {
-      const is_alarm_checked = Boolean(row.getValue('is_alarm_checked'));
+      const isAlarmChecked = Boolean(row.getValue('isAlarmChecked'));
       return (
         <div className="text-justify font-medium">
-          {is_alarm_checked ? (
+          {isAlarmChecked ? (
             <CheckCircledIcon className="text-primary" />
           ) : (
             <CrossCircledIcon className="text-muted-foreground" />
@@ -111,13 +113,13 @@ export const columns: ColumnDef<Shifts>[] = [
     },
   },
   {
-    accessorKey: 'is_room_checked',
+    accessorKey: 'isRoomChecked',
     header: () => <div className="text-justify">Chambre</div>,
     cell: ({ row }) => {
-      const is_room_checked = Boolean(row.getValue('is_room_checked'));
+      const isRoomChecked = Boolean(row.getValue('isRoomChecked'));
       return (
         <div className="text-justify font-medium">
-          {is_room_checked ? (
+          {isRoomChecked ? (
             <CheckCircledIcon className="text-primary" />
           ) : (
             <CrossCircledIcon className="text-muted-foreground" />
@@ -151,7 +153,7 @@ export const columns: ColumnDef<Shifts>[] = [
                     type="text"
                     hidden
                     name="checked"
-                    defaultValue={shift.is_basic_done ? 'true' : 'false'}
+                    defaultValue={shift.isBasicDone ? 'true' : 'false'}
                   />
                   <button type="submit" name="_action" value="basic">
                     Marquer basique réseau
@@ -174,7 +176,7 @@ export const columns: ColumnDef<Shifts>[] = [
                     type="text"
                     hidden
                     name="checked"
-                    defaultValue={shift.is_alarm_checked ? 'true' : 'false'}
+                    defaultValue={shift.isAlarmChecked ? 'true' : 'false'}
                   />
                   <button type="submit" name="_action" value="alarm">
                     Marquer verification des alarmes
@@ -197,7 +199,7 @@ export const columns: ColumnDef<Shifts>[] = [
                     type="text"
                     hidden
                     name="checked"
-                    defaultValue={shift.is_room_checked ? 'true' : 'false'}
+                    defaultValue={shift.isRoomChecked ? 'true' : 'false'}
                   />
                   <button type="submit" name="_action" value="room">
                     Marquer ronde salle techniques

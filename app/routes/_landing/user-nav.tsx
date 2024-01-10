@@ -1,12 +1,5 @@
-import { Link, useNavigate, useOutletContext } from '@remix-run/react';
-import { Session } from '@supabase/supabase-js';
-import {
-  User,
-  LogOut,
-  UserPlusIcon,
-  Settings,
-  ArchiveIcon,
-} from 'lucide-react';
+import { Link, redirect, useOutletContext } from '@remix-run/react';
+import { Settings, ArchiveIcon, LogOut } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
 import {
   DropdownMenu,
@@ -17,36 +10,21 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
-import { SupabaseOutletContext } from '~/root';
-import { Profile } from './header';
+import { DatabaseOutletContext } from '~/root';
 
-export const UserNav = ({ profile }: { profile: Profile | null }) => {
-  const { supabase } = useOutletContext<SupabaseOutletContext>();
-  const navigate = useNavigate();
-
-  const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (!error) navigate('/login');
-  };
+export const UserNav = () => {
+  const { profile, user } = useOutletContext<DatabaseOutletContext>();
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="" asChild>
         <Avatar className="w-7 h-7 overflow-hidden">
-          <AvatarImage
-            src={
-              profile?.avatar_url
-                ? profile?.avatar_url
-                : `https://github.com/shadcn.png`
-            }
-          />
+          <AvatarImage src={profile?.avatarUrl} />
           <AvatarFallback>Username</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-35" align="start">
-        <DropdownMenuLabel className="capitalize">
-          {profile?.full_name}
-        </DropdownMenuLabel>
+        <DropdownMenuLabel>{user.username}</DropdownMenuLabel>
         <DropdownMenuItem>
           <ArchiveIcon className="mr-2 h-4 w-4" />
           <Link to="/shift">My sfhit</Link>
@@ -59,10 +37,13 @@ export const UserNav = ({ profile }: { profile: Profile | null }) => {
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleLogout}>
-          <LogOut className="mr-2 h-4 w-4" />
-          <span>Log out</span>
-        </DropdownMenuItem>
+        <form action="/" method="post">
+          <input type="hidden" name="_action" value="logout" />
+          <DropdownMenuItem>
+            <LogOut className="mr-2 h-4 w-4" />
+            <button type="submit">Log out</button>
+          </DropdownMenuItem>
+        </form>
       </DropdownMenuContent>
     </DropdownMenu>
   );

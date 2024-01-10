@@ -33,20 +33,16 @@ const FormActivity = () => {
       </CardHeader>
       <CardContent>
         <Form className="space-y-4" method="post">
-          {/* <div className="space-y-2">
-            <Label>Titre</Label>
-            <Input name="title" type="text" required />
-          </div> */}
           <div className="flex space-x-4">
             <Select name="system" required>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Système" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="sat3">Sat3</SelectItem>
-                <SelectItem value="mainone">Mainone</SelectItem>
-                <SelectItem value="rafia">Rafia</SelectItem>
-                <SelectItem value="ace">Ace</SelectItem>
+                <SelectItem value="SAT3">Sat3</SelectItem>
+                <SelectItem value="MAINONE">Mainone</SelectItem>
+                <SelectItem value="RAFIA">Rafia</SelectItem>
+                <SelectItem value="ACE">Ace</SelectItem>
               </SelectContent>
             </Select>
             <Select name="type" required>
@@ -54,11 +50,11 @@ const FormActivity = () => {
                 <SelectValue placeholder="Type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="plainte">Plainte</SelectItem>
-                <SelectItem value="call Id">Call ID</SelectItem>
-                <SelectItem value="signalisation">Signalisation</SelectItem>
-                <SelectItem value="incident">Incident</SelectItem>
-                <SelectItem value="autre">Autre</SelectItem>
+                <SelectItem value="PLAINTE">Plainte</SelectItem>
+                <SelectItem value="CALL_ID">Call ID</SelectItem>
+                <SelectItem value="SIGNALISATION">Signalisation</SelectItem>
+                <SelectItem value="INCIDENT">Incident</SelectItem>
+                <SelectItem value="OTHER">Autre</SelectItem>
               </SelectContent>
             </Select>
             <Select name="state" required>
@@ -66,9 +62,9 @@ const FormActivity = () => {
                 <SelectValue placeholder="Etat" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="open">Ouvert</SelectItem>
-                <SelectItem value="in progress">En cours</SelectItem>
-                <SelectItem value="closed">Fermer</SelectItem>
+                <SelectItem value="OPEN">Ouvert</SelectItem>
+                <SelectItem value="IN_PROGRESS">En cours</SelectItem>
+                <SelectItem value="CLOSED">Fermer</SelectItem>
               </SelectContent>
             </Select>
           </div>

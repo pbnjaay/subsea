@@ -1,0 +1,26 @@
+version: '3.8'
+services:
+  mysql:
+    image: mysql:latest
+    ports:
+      - '3306:3306'
+    environment:
+      MYSQL_ROOT_PASSWORD: sonatel2024
+      MYSQL_DATABASE: subsea
+      MYSQL_USER: user
+      MYSQL_PASSWORD: passer123
+    volumes:
+      - app_mysql_data:/var/lib/mysql
+      - ./prisma/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  subsea_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '3000:3000'
+    depends_on:
+      - mysql
+
+volumes:
+  app_mysql_data:

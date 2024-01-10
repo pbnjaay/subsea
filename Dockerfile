@@ -1,19 +1,69 @@
-# Utilisez une version spécifique de l'image Alpine avec Node.js
-FROM node:18-alpine
+FROM node:18-bullseye-slim as base
 
-# Créez un répertoire de travail dans l'image
+# Install openssl for Prisma
+RUN apt-get update && apt-get install -y openssl
+
+# Install all node_modules, including dev dependencies
+FROM base as deps
+
+RUN mkdir /app
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm install
-COPY ./ .
-RUN npm run build
+ADD package.json package-lock.json ./
+RUN npm install --production=false
 
+# Setup production node_modules
+FROM base as production-deps
 
 # Définissez les variables d'environnement
+ENV NODE_ENV production
 ENV NODE_ENV=production
-ENV SUPABASE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFveHhraG1pbHprYW53a2Zqdm13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTczNTU2MzYsImV4cCI6MjAxMjkzMTYzNn0.u5mUJEdGFnriC_n3g6dv8vR4Tx0-UZuLqZlMWz2VAAM
-ENV SUPABASE_URL=https://qoxxkhmilzkanwkfjvmw.supabase.co
+ENV SESSION_KEY =secretla
+ENV MAIL_PASSWORD =Sonatel2023
+ENV MAIL_USERNAME =S_SupSMS
+ENV DATABASE_URL=mysql://user:passer123@mysql:3306/subsea
 
-# Commande pour lancer l'application en production
-CMD ["npm", "run", "start"]
+RUN mkdir /app
+WORKDIR /app
+
+COPY --from=deps /app/node_modules /app/node_modules
+ADD package.json package-lock.json ./
+RUN npm prune --production
+
+# Build the app
+FROM base as build
+
+RUN mkdir /app
+WORKDIR /app
+
+COPY --from=deps /app/node_modules /app/node_modules
+
+ADD prisma .
+RUN npx prisma generate
+
+ADD . .
+RUN npm run build
+
+# Finally, build the production image with minimal footprint
+FROM base
+
+# Définissez les variables d'environnement
+ENV NODE_ENV production
+ENV NODE_ENV=production
+ENV SESSION_KEY =secretla
+ENV MAIL_PASSWORD =Sonatel2023
+ENV MAIL_USERNAME =S_SupSMS
+ENV DATABASE_URL=mysql://user:passer123@mysql:3306/subsea
+
+
+RUN mkdir /app
+WORKDIR /app
+
+
+COPY --from=production-deps /app/node_modules /app/node_modules
+COPY --from=build /app/node_modules/.prisma /app/node_modules/.prisma
+COPY --from=build /app/build /app/build
+COPY --from=build /app/public /app/public
+ADD . .
+
+CMD ["npm", "run", "start:migrate:prod"]

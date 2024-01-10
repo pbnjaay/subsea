@@ -1,8 +1,12 @@
 import { LoaderFunctionArgs, json } from '@remix-run/node';
-import { useFetcher, useLoaderData, useNavigate } from '@remix-run/react';
+import {
+  useActionData,
+  useFetcher,
+  useLoaderData,
+  useNavigate,
+} from '@remix-run/react';
 import invariant from 'tiny-invariant';
 import { Button } from '~/components/ui/button';
-import { deleteActivity, getActivities, getShift } from '~/services/api';
 import { formateDate, formateDateWithoutHour } from '~/services/utils';
 import Action from './action';
 import {
@@ -19,17 +23,28 @@ import {
 import { MailIcon } from 'lucide-react';
 import Email from '~/components/email';
 import { mailer } from '~/entry.server';
-import { render, renderAsync } from '@react-email/render';
+import { render } from '@react-email/render';
 import { useToast } from '~/components/ui/use-toast';
 import { useEffect } from 'react';
 import { ToastAction, ToastDescription } from '~/components/ui/toast';
 import Loader from '~/components/loader';
+import prisma from 'client.server';
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   invariant(params.shiftId, 'Missing shiftId param');
   const response = new Response();
-  const shift = await getShift(parseInt(params.shiftId), { request, response });
-  const activities = await getActivities(params.shiftId, { request, response });
+  const shift = await prisma.shift.findFirst({
+    where: {
+      id: Number(params.shiftId),
+    },
+  });
+
+  if (!shift)
+    throw new Response('Not Found', { status: 404, statusText: 'NOT FOUND' });
+
+  const activities = await prisma.activity.findMany({
+    where: { shiftId: Number(params.shiftId) },
+  });
   return json({ shift, activities }, { headers: response.headers });
 };
 
@@ -37,13 +52,22 @@ export const action = async ({ request, params }: LoaderFunctionArgs) => {
   invariant(params.shiftId, 'Missing contactId param');
   const response = new Response();
   const formData = await request.formData();
-  const { _action, id, shifts, activities } = Object.fromEntries(formData);
+  const { _action, activityId } = Object.fromEntries(formData);
 
   if (_action === 'end') {
     try {
       const [activities, shift] = await Promise.all([
-        getActivities(String(params.shiftId), { request, response }),
-        getShift(Number(params.shiftId), { request, response }),
+        prisma.activity.findMany({
+          where: { shiftId: Number(params.shiftId) },
+        }),
+        prisma.shift.findFirst({
+          where: {
+            id: Number(params.shiftId),
+          },
+          include: {
+            supervisor: true,
+          },
+        }),
       ]);
 
       const emailHtml = render(<Email activities={activities} shift={shift} />);
@@ -55,8 +79,8 @@ export const action = async ({ request, params }: LoaderFunctionArgs) => {
         port: 587,
         secure: false,
         auth: {
-          user: 'S_SupSMS',
-          pass: 'Sonatel2022',
+          user: process.env.MAIL_USERNAME,
+          pass: process.env.MAIL_PASSWORD,
         },
         tls: {
           ciphers: 'TLSv1.2',
@@ -78,16 +102,41 @@ export const action = async ({ request, params }: LoaderFunctionArgs) => {
         html: emailHtml,
       });
 
-      return json({ success: 'ok' }, { headers: response.headers });
+      return json(
+        {
+          data: {
+            success: { message: 'Votre rapport a été envoyé' },
+            error: { message: null },
+          },
+        },
+        { headers: response.headers }
+      );
     } catch (error) {
-      console.error('An error occurred:', error);
-      return json({ error: 'An error occurred' }, { status: 500 });
+      return json({
+        data: {
+          success: { message: null },
+          error: {
+            message: "Votre courrier n'a pas été envoyé, veuillez réessayer.",
+          },
+        },
+      });
     }
   }
 
   if (_action === 'deleteActivity') {
-    await deleteActivity(Number(id), { request, response });
-    return json({ deleted: true }, { headers: response.headers });
+    await prisma.activity.delete({
+      where: {
+        id: Number(activityId),
+      },
+    });
+    return json({
+      data: {
+        success: { message: 'Supprimer !' },
+        error: {
+          message: null,
+        },
+      },
+    });
   }
 };
 
@@ -96,31 +145,32 @@ const ShiftDetailsPage = () => {
   const navigate = useNavigate();
   const fetcher = useFetcher();
   const { toast } = useToast();
+  const data = useActionData<typeof action>();
 
   useEffect(() => {
-    if (fetcher?.success === 'ok') {
+    if (data?.data.success.message) {
       toast({
         description: (
-          <ToastDescription>Votre rapport a été envoyé</ToastDescription>
+          <ToastDescription>{data.data.success.message}</ToastDescription>
         ),
       });
     }
-    if (fetcher.data?.error) {
+    if (data?.data.error.message) {
       toast({
         variant: 'destructive',
         title: 'Oh, oh ! Quelque chose a mal tourné.',
-        description: 'Il y a eu un problème avec votre demande.',
+        description: data.data.error.message,
         action: <ToastAction altText="Try again">Réessayer</ToastAction>,
       });
     }
-  }, [fetcher.data]);
+  }, [data?.data]);
 
   if (!shift) return;
   return (
     <div className="container pt-8">
       <div className="flex justify-between mb-4">
         <h1 className="text-xl md:text-2xl font-bold">
-          {formateDate(new Date(shift?.start_at))}
+          {formateDate(new Date(shift?.startAt))}
         </h1>
         <div className="flex gap-x-2">
           <AlertDialog>
@@ -175,7 +225,7 @@ const ShiftDetailsPage = () => {
           </Button>
         </div>
       </div>
-      <Action activities={activities} />
+      <Action activities={activities as any} />
     </div>
   );
 };

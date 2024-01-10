@@ -1,4 +1,9 @@
-import { LoaderFunctionArgs, json, type LinksFunction } from '@remix-run/node';
+import {
+  LoaderFunctionArgs,
+  json,
+  type LinksFunction,
+  redirect,
+} from '@remix-run/node';
 import {
   Links,
   LiveReload,
@@ -8,16 +13,10 @@ import {
   ScrollRestoration,
   isRouteErrorResponse,
   useLoaderData,
-  useRevalidator,
   useRouteError,
 } from '@remix-run/react';
-import { SupabaseClient } from '@supabase/supabase-js';
-import { useEffect, useState } from 'react';
 import clsx from 'clsx';
 
-import { createBrowserClient } from '@supabase/auth-helpers-remix';
-import type { Database } from 'db_types';
-import CreateServerSupabase from 'supabase.server';
 import stylesheet from '~/globals.css';
 import { themeSessionResolver } from './server.session';
 import {
@@ -26,34 +25,67 @@ import {
   useTheme,
 } from 'remix-themes';
 import { Toaster } from './components/ui/toaster';
-
-type TypedSupabaseClient = SupabaseClient<Database>;
-
-export type SupabaseOutletContext = {
-  supabase: TypedSupabaseClient;
-};
+import { destroySession, getSession } from './sessions';
+import prisma from 'client.server';
 
 export const links: LinksFunction = () => [
   { rel: 'stylesheet', href: stylesheet },
 ];
 
+interface Profile {
+  id: number;
+  avatarUrl: string;
+  updatedAt: Date;
+  userId: number;
+}
+
+interface User {
+  id: number;
+  email: string;
+  username: string;
+  password: string;
+  salt: string;
+  fullName: string;
+  isAdmin: boolean;
+  createdAt: Date;
+}
+
+export type DatabaseOutletContext = {
+  profile: Profile;
+  user: User;
+};
+
+export const action = async ({ request }: LoaderFunctionArgs) => {
+  const formData = await request.formData();
+  const { _action } = Object.fromEntries(formData);
+  const session = await getSession(request.headers.get('Cookie'));
+
+  if (_action === 'logout')
+    return redirect('/login', {
+      headers: {
+        'Set-Cookie': await destroySession(session),
+      },
+    });
+
+  return json({});
+};
+
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const env = {
-    SUPERBASE_URL: process.env.SUPABASE_URL!,
-    SUPERBASE_KEY: process.env.SUPABASE_KEY!,
-  };
-
   const response = new Response();
-  const supabase = CreateServerSupabase({ request, response });
+  const session = await getSession(request.headers.get('Cookie'));
+  if (!session) return redirect('/login');
 
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
+  const profile = await prisma.profile.findFirst({
+    where: {
+      userId: {
+        equals: session.data.user?.id,
+      },
+    },
+  });
 
   const { getTheme } = await themeSessionResolver(request);
-
   return json(
-    { env, session, them: getTheme() },
+    { profile: profile, user: session.data.user, them: getTheme() },
     { headers: response.headers }
   );
 };
@@ -68,26 +100,12 @@ export default function AppWithProviders() {
 }
 
 export function App() {
-  const { env, session, them } = useLoaderData<typeof loader>();
-  const [supabase] = useState(() =>
-    createBrowserClient<Database>(env.SUPERBASE_URL, env.SUPERBASE_KEY)
-  );
-  const revalidator = useRevalidator();
-  const serverAccessToken = session?.access_token;
+  const { them, profile, user } = useLoaderData<typeof loader>();
   const [theme] = useTheme();
-
-  useEffect(() => {
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.access_token !== serverAccessToken) revalidator.revalidate();
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [supabase, serverAccessToken, revalidator]);
-
+  const context = {
+    profile,
+    user,
+  };
   return (
     <html lang="en" className={clsx(theme)}>
       <head>
@@ -98,7 +116,7 @@ export function App() {
         <Links />
       </head>
       <body>
-        <Outlet context={{ supabase }} />
+        <Outlet context={context} />
         <Toaster />
         <ScrollRestoration />
         <Scripts />

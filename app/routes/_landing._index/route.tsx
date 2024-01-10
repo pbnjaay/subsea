@@ -4,7 +4,6 @@ import {
   type MetaFunction,
 } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
-import { Database } from 'db_types';
 import {
   CircleIcon,
   ArrowRight,
@@ -15,30 +14,8 @@ import CardStat from '~/components/card-stat';
 import Chart from '~/components/chart';
 import Last5Activities from '~/components/last-activities';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
-import { getActivityStateCount, getRecentIssues } from '~/services/api';
-import { Profile } from '../_landing/header';
-
-export interface RecentActivity {
-  created_at: string;
-  description: string | null;
-  id: number;
-  shift:
-    | (number & {
-        created_at: string;
-        end_at: string | null;
-        id: number;
-        is_alarm_checked: boolean | null;
-        is_basic_done: boolean | null;
-        is_room_checked: boolean | null;
-        supervisor: string | null;
-        profiles: Profile | null;
-      })
-    | null;
-  state: Database['public']['Enums']['state'];
-  system: Database['public']['Enums']['system'];
-  title: string;
-  type: Database['public']['Enums']['type'];
-}
+import { $Enums } from '@prisma/client';
+import { getActcvityBySateCount, getRecentIssues } from '~/services/prisma-api';
 
 export const meta: MetaFunction = () => {
   return [
@@ -49,21 +26,15 @@ export const meta: MetaFunction = () => {
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const response = new Response();
-  const openShiftsCount = await getActivityStateCount(
-    { request, response },
-    'open'
+  const openShiftsCount = await getActcvityBySateCount($Enums.State.OPEN);
+  const inProgressShiftsCount = await getActcvityBySateCount(
+    $Enums.State.IN_PROGRESS
   );
-  const inProgressShiftsCount = await getActivityStateCount(
-    { request, response },
-    'in progress'
-  );
+  const closedShiftsCount = await getActcvityBySateCount($Enums.State.CLOSED);
 
-  const closedShiftsCount = await getActivityStateCount(
-    { request, response },
-    'closed'
-  );
+  const recentIssues = await getRecentIssues();
 
-  const recentIssues = await getRecentIssues({ request, response });
+  interface RecentIssue {}
 
   return json(
     {

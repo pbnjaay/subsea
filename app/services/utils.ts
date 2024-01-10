@@ -1,9 +1,10 @@
+import crypto from 'crypto';
 export const formateDate = (date: Date) =>
   date.toLocaleDateString('fr-FR', {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
-    hour: 'numeric',
+    hour: '2-digit',
     minute: '2-digit',
   });
 
@@ -33,4 +34,25 @@ export function formatInstant(created_at: string) {
     const year = date.getFullYear();
     return `${month} ${day}, ${year}`;
   }
+}
+
+export function generateSalt() {
+  return crypto.randomBytes(16).toString('hex');
+}
+
+export function hashPassword(password: string, salt: string) {
+  const hash = crypto.createHmac('sha256', salt).update(password).digest('hex');
+  return hash;
+}
+
+export function generateSimplePassword(length: number) {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let password = '';
+
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * chars.length);
+    password += chars.charAt(randomIndex);
+  }
+
+  return password;
 }

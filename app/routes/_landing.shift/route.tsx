@@ -1,13 +1,5 @@
 import { LoaderFunctionArgs, MetaFunction, json } from '@remix-run/node';
 import { useFetcher, useLoaderData } from '@remix-run/react';
-import {
-  deleteShift,
-  getShifts,
-  postShift,
-  toogleAlarm,
-  toogleBasic,
-  toogleRoom,
-} from '~/services/api';
 import { DataTable } from './data-table';
 import { columns } from './columns';
 import { Button } from '~/components/ui/button';
@@ -23,6 +15,8 @@ import {
 import { Label } from '~/components/ui/label';
 import { Input } from '~/components/ui/input';
 import Loader from '~/components/loader';
+import { getSession } from '~/sessions';
+import prisma from 'client.server';
 
 export const meta: MetaFunction = ({ data }) => {
   return [
@@ -32,9 +26,27 @@ export const meta: MetaFunction = ({ data }) => {
 };
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const response = new Response();
-  const shifts = await getShifts({ request, response });
-  return json({ shifts }, { headers: response.headers });
+  const session = await getSession(request.headers.get('Cookie'));
+  if (!session.data.user?.isAdmin) {
+    const shifts = await prisma.shift.findMany({
+      where: {
+        userId: {
+          equals: Number(session.data.user?.id),
+        },
+      },
+      include: {
+        supervisor: true,
+      },
+    });
+    return json({ shifts });
+  }
+
+  const shifts = await prisma.shift.findMany({
+    include: {
+      supervisor: true,
+    },
+  });
+  return json({ shifts });
 };
 
 export const action = async ({ request, params }: LoaderFunctionArgs) => {
@@ -43,36 +55,48 @@ export const action = async ({ request, params }: LoaderFunctionArgs) => {
   const { _action, shiftId, checked, start, end } =
     Object.fromEntries(formData);
 
-  if (_action === 'postShift') {
-    const shift = await postShift(
-      { request, response },
-      String(end),
-      String(start)
-    );
+  const session = await getSession(request.headers.get('Cookie'));
+
+  if (_action === 'postShift' && session.data.user) {
+    const shift = await prisma.shift.create({
+      data: {
+        endAt: new Date(String(end)),
+        startAt: new Date(String(start)),
+        userId: session.data.user.id,
+      },
+    });
     return json({ shift }, { headers: response.headers });
   }
 
-  const is_checked = checked === 'false' ? false : true;
+  const is_checked = checked === 'false' ? true : false;
 
   if (_action === 'destroy')
-    await deleteShift(Number(shiftId), { request, response });
+    await prisma.shift.delete({
+      where: { id: Number(shiftId) },
+    });
 
   if (_action === 'room')
-    await toogleRoom(Number(shiftId), is_checked, {
-      request,
-      response,
+    await prisma.shift.update({
+      where: { id: Number(shiftId) },
+      data: {
+        isRoomChecked: is_checked,
+      },
     });
 
   if (_action === 'alarm')
-    await toogleAlarm(Number(shiftId), is_checked, {
-      request,
-      response,
+    await prisma.shift.update({
+      where: { id: Number(shiftId) },
+      data: {
+        isAlarmChecked: is_checked,
+      },
     });
 
   if (_action === 'basic')
-    await toogleBasic(Number(shiftId), is_checked, {
-      request,
-      response,
+    await prisma.shift.update({
+      where: { id: Number(shiftId) },
+      data: {
+        isBasicDone: is_checked,
+      },
     });
 
   return json({}, { headers: response.headers });
