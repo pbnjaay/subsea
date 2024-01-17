@@ -26,7 +26,7 @@ import {
   SelectValue,
 } from '~/components/ui/select';
 import { Textarea } from '~/components/ui/textarea';
-import { updateActivity } from '~/services/api';
+import prisma from 'client.server';
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   invariant(params.shiftId, 'Missing shiftId param');
@@ -52,7 +52,7 @@ export const action = async ({ request, params }: LoaderFunctionArgs) => {
 
   const response = new Response();
 
-  await prisma?.activity.update({
+  await prisma.activity.update({
     where: {
       id: Number(params.activityId),
     },

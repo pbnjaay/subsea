@@ -37,7 +37,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 
 export const action = async ({ request, params }: LoaderFunctionArgs) => {
-  const response = new Response();
   const formData = await request.formData();
   const { email, fullName, username } = Object.fromEntries(formData);
   const isAdmin = formData.get('isAdmin') ?? 'false';
@@ -45,7 +44,29 @@ export const action = async ({ request, params }: LoaderFunctionArgs) => {
   const generatedPassword = generateSimplePassword(20);
   const hashedPassword = hashPassword(generatedPassword, salt);
 
-  let user = await prisma.user.create({
+  const user = await prisma.user.findFirst({
+    where: {
+      OR: [{ email: String(email) }, { username: String(username) }],
+    },
+  });
+
+  if (user?.email === String(email))
+    return json({
+      data: {
+        success: { message: null },
+        error: { message: "L'email est deja utilise par un autre utilisateur" },
+      },
+    });
+
+  if (user?.username === String(username))
+    return json({
+      data: {
+        success: { message: null },
+        error: { message: "Le nom d'utilisateur n'est pas disponible" },
+      },
+    });
+
+  let newUser = await prisma.user.create({
     data: {
       email: String(email),
       password: hashedPassword,
@@ -61,10 +82,10 @@ export const action = async ({ request, params }: LoaderFunctionArgs) => {
     },
   });
 
-  if (user) {
-    user.password = generatedPassword;
+  if (newUser) {
+    newUser.password = generatedPassword;
 
-    const emailHtml = render(<SubscriptionEmail user={user} />);
+    const emailHtml = render(<SubscriptionEmail user={newUser} />);
 
     const transporter = mailer.createTransport({
       host: 'webmail.orange-sonatel.com',
@@ -81,7 +102,7 @@ export const action = async ({ request, params }: LoaderFunctionArgs) => {
     });
     const info = await transporter.sendMail({
       from: 'supervision.services@orange-sonatel.com',
-      to: [user.email],
+      to: [newUser.email],
       subject: 'Informations de connexions',
       html: emailHtml,
     });

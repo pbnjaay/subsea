@@ -20,7 +20,6 @@ import {
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
 import { formateDate } from '~/services/utils';
-import { Profile } from '../_landing/header';
 import { User } from '@prisma/client';
 
 export type Shifts = {
